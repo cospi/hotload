@@ -46,6 +46,9 @@ void populate_game_api(void *const game_api)
 
 	GameApi *const game_api_actual = static_cast<GameApi *>(game_api);
 	game_api_actual->game_memory_size = sizeof(Game);
+	game_api_actual->window_width = 640;
+	game_api_actual->window_height = 480;
+	game_api_actual->window_title = "Hotload";
 	game_api_actual->init = init;
 	game_api_actual->fini = fini;
 	game_api_actual->tick = tick;

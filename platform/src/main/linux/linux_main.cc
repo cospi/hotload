@@ -6,6 +6,21 @@
 #include "../../log/stdlib/stdlib_logger.hh"
 #include "../../memory/stdlib/stdlib_allocator.hh"
 #include "../../shared_library/posix/posix_shared_library.hh"
+#include "../../window_system/x11/x11_window.hh"
+
+static bool handle_events(const X11Connection &x11_connection)
+{
+	const Atom wm_delete_window = x11_connection.get_wm_delete_window();
+	Display *const display = x11_connection.get_display();
+	while (XPending(display) > 0) {
+		XEvent e;
+		XNextEvent(display, &e);
+		if ((e.type == ClientMessage) && (static_cast<Atom>(e.xclient.data.l[0]) == wm_delete_window)) {
+			return false;
+		}
+	}
+	return true;
+}
 
 int main()
 {
@@ -29,6 +44,9 @@ int main()
 	populate_game_api(&game_api);
 	if (
 		(game_api.game_memory_size == 0)
+		|| (game_api.window_width == 0)
+		|| (game_api.window_height == 0)
+		|| (game_api.window_title == nullptr)
 		|| (game_api.init == nullptr)
 		|| (game_api.fini == nullptr)
 		|| (game_api.tick == nullptr)
@@ -42,18 +60,36 @@ int main()
 	if (!game_memory_allocation.init(game_api.game_memory_size)) {
 		return -1;
 	}
-	void *const game_memory = game_memory_allocation.get_memory();
+
+	X11Connection x11_connection(logger);
+	if (!x11_connection.init(nullptr)) {
+		return -1;
+	}
+
+	const Window window = x11_window_create(
+		x11_connection,
+		logger,
+		game_api.window_width,
+		game_api.window_height,
+		game_api.window_title
+	);
+	static_cast<void>(window);
 
 	PosixFileSystem file_system(logger);
 	Platform platform(logger, allocator, file_system);
+	void *const game_memory = game_memory_allocation.get_memory();
 
 	if (!game_api.init(game_memory, &platform)) {
 		logger.log(LogLevel::ERROR, "Game initialization failed.");
 		return -1;
 	}
 
-	game_api.tick(game_memory);
+	while (handle_events(x11_connection)) {
+		game_api.tick(game_memory);
+	}
+
 	game_api.fini(game_memory);
 
+	// \note Window will be automatically destroyed when connection to X server is closed.
 	return 0;
 }
