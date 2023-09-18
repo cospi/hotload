@@ -2,7 +2,12 @@
 
 #include <cstdio>
 
-void game_tick()
+bool Game::init()
+{
+	return true;
+}
+
+void Game::tick()
 {
 	std::puts("tick");
 }

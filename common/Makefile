@@ -16,12 +16,12 @@ DEP_EXT := .d
 SRC := $(shell find $(SRC_DIR) -name *$(SRC_EXT))
 OBJ := $(SRC:$(SRC_DIR)%$(SRC_EXT)=$(OBJ_DIR)%$(OBJ_EXT))
 DEP := $(SRC:$(SRC_DIR)%$(SRC_EXT)=$(DEP_DIR)%$(DEP_EXT))
-OUT := $(BIN_DIR)libhotloadgame.so
+OUT := $(BIN_DIR)libhotloadcommon.a
+OUT_DIR_LAZY = $(realpath $(dir $(OUT)))
 
 CXX := g++
 CXXFLAGS += \
 	-std=c++17 \
-	-fPIC \
 	-fno-rtti \
 	-fno-exceptions \
 	-Werror \
@@ -191,7 +191,7 @@ clean :
 
 $(OUT) : $(OBJ)
 	$(shell mkdir -p $(dir $@))
-	$(CXX) -shared $^ -o $@
+	ar rcs $@ $^
 
 $(OBJ_DIR)%$(OBJ_EXT) : $(SRC_DIR)%$(SRC_EXT)
 	$(shell mkdir -p $(dir $@) $(dir $(TARGET_OBJ_TO_DEP)))

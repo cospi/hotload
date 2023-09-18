@@ -1,4 +1,8 @@
+#include <common/game/game_api.hh>
+#include <common/memory/allocation.hh>
+
 #include "../../log/stdlib/stdlib_logger.hh"
+#include "../../memory/stdlib/stdlib_allocator.hh"
 #include "../../shared_library/posix/posix_shared_library.hh"
 
 int main()
@@ -10,16 +14,41 @@ int main()
 		return -1;
 	}
 
-	void (*game_tick)();
-	if (!shared_library.try_get_symbol("game_tick", reinterpret_cast<void **>(&game_tick))) {
+	void (*populate_game_api)(void *);
+	if (!shared_library.try_get_symbol("populate_game_api", reinterpret_cast<void **>(&populate_game_api))) {
 		return -1;
 	}
-	if (game_tick == nullptr) {
-		logger.log(LogLevel::ERROR, "game_tick symbol was null.");
+	if (populate_game_api == nullptr) {
+		logger.log(LogLevel::ERROR, "populate_game_api symbol was null.");
 		return -1;
 	}
 
-	game_tick();
+	GameApi game_api;
+	populate_game_api(&game_api);
+	if (
+		(game_api.game_memory_size == 0)
+		|| (game_api.init == nullptr)
+		|| (game_api.fini == nullptr)
+		|| (game_api.tick == nullptr)
+	) {
+		logger.log(LogLevel::ERROR, "Invalid game API specification.");
+		return -1;
+	}
+
+	StdlibAllocator allocator(logger);
+	Allocation game_memory_allocation(allocator);
+	if (!game_memory_allocation.init(game_api.game_memory_size)) {
+		return -1;
+	}
+
+	void *const game_memory = game_memory_allocation.get_memory();
+	if (!game_api.init(game_memory)) {
+		logger.log(LogLevel::ERROR, "Game initialization failed.");
+		return -1;
+	}
+
+	game_api.tick(game_memory);
+	game_api.fini(game_memory);
 
 	return 0;
 }
