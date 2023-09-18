@@ -5,7 +5,7 @@
 
 struct GameApi {
 	std::size_t game_memory_size;
-	bool (*init)(void *game_memory);
+	bool (*init)(void *game_memory, void *game_api);
 	void (*fini)(void *game_memory);
 	void (*tick)(void *game_memory);
 };

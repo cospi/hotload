@@ -8,12 +8,14 @@
 
 #include "game.hh"
 
-static bool init(void *const game_memory)
+static bool init(void *const game_memory, void *const platform)
 {
 	assert(game_memory != nullptr);
 	assert((reinterpret_cast<std::uintptr_t>(game_memory) % alignof(Game)) == 0);
+	assert(platform != nullptr);
+	assert((reinterpret_cast<std::uintptr_t>(platform) % alignof(Platform)) == 0);
 
-	Game *const game = new(game_memory) Game;
+	Game *const game = new(game_memory) Game(*static_cast<Platform *>(platform));
 	if (!game->init()) {
 		game->~Game();
 		return false;

@@ -1,6 +1,8 @@
 #include <common/game/game_api.hh>
 #include <common/memory/allocation.hh>
+#include <common/platform/platform.hh>
 
+#include "../../file_system/stdlib/stdlib_file_system.hh"
 #include "../../log/stdlib/stdlib_logger.hh"
 #include "../../memory/stdlib/stdlib_allocator.hh"
 #include "../../shared_library/posix/posix_shared_library.hh"
@@ -40,9 +42,12 @@ int main()
 	if (!game_memory_allocation.init(game_api.game_memory_size)) {
 		return -1;
 	}
-
 	void *const game_memory = game_memory_allocation.get_memory();
-	if (!game_api.init(game_memory)) {
+
+	StdlibFileSystem file_system(logger);
+	Platform platform(logger, allocator, file_system);
+
+	if (!game_api.init(game_memory, &platform)) {
 		logger.log(LogLevel::ERROR, "Game initialization failed.");
 		return -1;
 	}

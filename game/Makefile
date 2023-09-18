@@ -182,6 +182,8 @@ endif
 
 CXXFLAGS += -I../common/include/
 
+LDFLAGS += -L$(BIN_DIR) -lhotloadcommon
+
 TARGET_OBJ_TO_DEP = $(@:$(OBJ_DIR)%$(OBJ_EXT)=$(DEP_DIR)%$(DEP_EXT))
 
 all : $(OUT)
@@ -191,7 +193,7 @@ clean :
 
 $(OUT) : $(OBJ)
 	$(shell mkdir -p $(dir $@))
-	$(CXX) -shared $^ -o $@
+	$(CXX) -shared $^ -o $@ $(LDFLAGS)
 
 $(OBJ_DIR)%$(OBJ_EXT) : $(SRC_DIR)%$(SRC_EXT)
 	$(shell mkdir -p $(dir $@) $(dir $(TARGET_OBJ_TO_DEP)))
