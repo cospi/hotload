@@ -2,7 +2,7 @@
 #include <common/memory/allocation.hh>
 #include <common/platform/platform.hh>
 
-#include "../../file_system/stdlib/stdlib_file_system.hh"
+#include "../../file_system/posix/posix_file_system.hh"
 #include "../../log/stdlib/stdlib_logger.hh"
 #include "../../memory/stdlib/stdlib_allocator.hh"
 #include "../../shared_library/posix/posix_shared_library.hh"
@@ -44,7 +44,7 @@ int main()
 	}
 	void *const game_memory = game_memory_allocation.get_memory();
 
-	StdlibFileSystem file_system(logger);
+	PosixFileSystem file_system(logger);
 	Platform platform(logger, allocator, file_system);
 
 	if (!game_api.init(game_memory, &platform)) {
