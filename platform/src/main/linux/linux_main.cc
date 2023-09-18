@@ -1,10 +1,11 @@
-#include <cstdio>
-
+#include "../../log/stdlib/stdlib_logger.hh"
 #include "../../shared_library/posix/posix_shared_library.hh"
 
 int main()
 {
-	PosixSharedLibrary shared_library;
+	StdlibLogger logger(stdout /* Info */, stderr /* Warning */, stderr /* Error */);
+
+	PosixSharedLibrary shared_library(logger);
 	if (!shared_library.init("libhotloadgame.so", RTLD_NOW)) {
 		return -1;
 	}
@@ -14,7 +15,7 @@ int main()
 		return -1;
 	}
 	if (game_tick == nullptr) {
-		std::fputs("game_tick symbol was null.\n", stderr);
+		logger.log(LogLevel::ERROR, "game_tick symbol was null.");
 		return -1;
 	}
 

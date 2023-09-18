@@ -3,9 +3,11 @@
 
 #include <dlfcn.h> // \note Expose flags: RTLD_LAZY, RTLD_NOW, etc.
 
+#include <common/log/i_logger.hh>
+
 class PosixSharedLibrary final {
 public:
-	PosixSharedLibrary();
+	explicit PosixSharedLibrary(ILogger &logger);
 	~PosixSharedLibrary();
 
 	PosixSharedLibrary(const PosixSharedLibrary &) = delete;
@@ -16,6 +18,7 @@ public:
 	bool try_get_symbol(const char *symbol_name, void **out_symbol) const;
 
 private:
+	ILogger &logger_;
 	void *handle_;
 };
 

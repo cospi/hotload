@@ -2,19 +2,19 @@
 
 #include <cassert>
 #include <cinttypes>
-#include <cstdio>
 
-PosixSharedLibrary::PosixSharedLibrary()
-	: handle_(nullptr)
+PosixSharedLibrary::PosixSharedLibrary(ILogger &logger)
+	: logger_(logger)
+	, handle_(nullptr)
 { }
 
 PosixSharedLibrary::~PosixSharedLibrary()
 {
 	if (void *const handle = handle_; handle != nullptr) {
 		dlclose(handle);
-		std::fprintf(
-			stdout,
-			"Closed POSIX shared library (%" PRIxPTR ").\n",
+		logger_.log(
+			LogLevel::INFO,
+			"Closed POSIX shared library (%" PRIxPTR ").",
 			reinterpret_cast<std::uintptr_t>(handle)
 		);
 	}
@@ -26,15 +26,14 @@ bool PosixSharedLibrary::init(const char *const filename, const int flag)
 
 	void *const handle = dlopen(filename, flag);
 	if (handle == nullptr) {
-		std::fputs(dlerror(), stderr);
-		std::fputc('\n', stderr);
+		logger_.log(LogLevel::ERROR, dlerror());
 		return false;
 	}
 
 	handle_ = handle;
-	std::fprintf(
-		stdout,
-		"Opened POSIX shared library (%" PRIxPTR ").\n",
+	logger_.log(
+		LogLevel::INFO,
+		"Opened POSIX shared library (%" PRIxPTR ").",
 		reinterpret_cast<std::uintptr_t>(handle)
 	);
 	return true;
@@ -49,8 +48,7 @@ bool PosixSharedLibrary::try_get_symbol(const char *const symbol_name, void **co
 	dlerror(); // \note Clear existing errors.
 	void *const symbol = dlsym(handle_, symbol_name);
 	if (const char *const error = dlerror(); error != nullptr) {
-		std::fputs(error, stderr);
-		std::fputc('\n', stderr);
+		logger_.log(LogLevel::ERROR, error);
 		return false;
 	}
 

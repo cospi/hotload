@@ -180,6 +180,8 @@ else
 	CXXFLAGS += -DNDEBUG -O3
 endif
 
+CXXFLAGS += -I../common/include/
+
 LDFLAGS += -L$(BIN_DIR) -ldl
 
 TARGET_OBJ_TO_DEP = $(@:$(OBJ_DIR)%$(OBJ_EXT)=$(DEP_DIR)%$(DEP_EXT))
