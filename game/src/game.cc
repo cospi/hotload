@@ -21,6 +21,4 @@ bool Game::init()
 }
 
 void Game::tick()
-{
-	platform_.logger.log(LogLevel::INFO, "tick");
-}
+{ }

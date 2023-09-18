@@ -1,3 +1,5 @@
+#include <GL/gl.h>
+
 #include <common/game/game_api.hh>
 #include <common/memory/allocation.hh>
 #include <common/platform/platform.hh>
@@ -6,7 +8,7 @@
 #include "../../log/stdlib/stdlib_logger.hh"
 #include "../../memory/stdlib/stdlib_allocator.hh"
 #include "../../shared_library/posix/posix_shared_library.hh"
-#include "../../window_system/x11/x11_window.hh"
+#include "../../window_system/x11/x11_gl_context.hh"
 
 static bool handle_events(const X11Connection &x11_connection)
 {
@@ -66,14 +68,17 @@ int main()
 		return -1;
 	}
 
-	const Window window = x11_window_create(
-		x11_connection,
-		logger,
-		game_api.window_width,
-		game_api.window_height,
-		game_api.window_title
-	);
-	static_cast<void>(window);
+	X11GlWindow window(x11_connection, logger);
+	if (!window.init(game_api.window_width, game_api.window_height, game_api.window_title)) {
+		return -1;
+	}
+
+	X11GlContext gl_context(window, logger);
+	if (!gl_context.init()) {
+		return -1;
+	}
+
+	window.make_context_current(&gl_context);
 
 	PosixFileSystem file_system(logger);
 	Platform platform(logger, allocator, file_system);
@@ -84,12 +89,27 @@ int main()
 		return -1;
 	}
 
+	glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
+
 	while (handle_events(x11_connection)) {
 		game_api.tick(game_memory);
+
+		glClear(GL_COLOR_BUFFER_BIT);
+		glBegin(GL_TRIANGLES);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glVertex2f(-0.5f, -0.5f);
+		glColor3f(0.0f, 1.0f, 0.0f);
+		glVertex2f(0.5f, -0.5f);
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glVertex2f(0.0f, 0.5f);
+		glEnd();
+
+		window.swap_buffers();
 	}
 
 	game_api.fini(game_memory);
 
-	// \note Window will be automatically destroyed when connection to X server is closed.
+	window.make_context_current(nullptr);
+
 	return 0;
 }

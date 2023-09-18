@@ -182,7 +182,7 @@ endif
 
 CXXFLAGS += -I../common/include/
 
-LDFLAGS += -L$(BIN_DIR) -ldl -lX11 -lhotloadcommon
+LDFLAGS += -L$(BIN_DIR) -ldl -lX11 -lGL -lhotloadcommon
 
 TARGET_OBJ_TO_DEP = $(@:$(OBJ_DIR)%$(OBJ_EXT)=$(DEP_DIR)%$(DEP_EXT))
 
