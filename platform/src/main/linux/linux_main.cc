@@ -7,6 +7,7 @@
 #include "../../file_system/posix/posix_file_system.hh"
 #include "../../log/stdlib/stdlib_logger.hh"
 #include "../../memory/stdlib/stdlib_allocator.hh"
+#include "../../render/gl/gl_render.hh"
 #include "../../shared_library/posix/posix_shared_library.hh"
 #include "../../window_system/x11/x11_gl_context.hh"
 
@@ -46,6 +47,7 @@ int main()
 	populate_game_api(&game_api);
 	if (
 		(game_api.game_memory_size == 0)
+		|| (game_api.render_command_capacity == 0)
 		|| (game_api.window_width == 0)
 		|| (game_api.window_height == 0)
 		|| (game_api.window_title == nullptr)
@@ -60,6 +62,11 @@ int main()
 	StdlibAllocator allocator(logger);
 	Allocation game_memory_allocation(allocator);
 	if (!game_memory_allocation.init(game_api.game_memory_size)) {
+		return -1;
+	}
+
+	RenderCommandBuffer render_command_buffer(allocator);
+	if (!render_command_buffer.init(game_api.render_command_capacity)) {
 		return -1;
 	}
 
@@ -81,7 +88,7 @@ int main()
 	window.make_context_current(&gl_context);
 
 	PosixFileSystem file_system(logger);
-	Platform platform(logger, allocator, file_system);
+	Platform platform(logger, allocator, file_system, render_command_buffer);
 	void *const game_memory = game_memory_allocation.get_memory();
 
 	if (!game_api.init(game_memory, &platform)) {
@@ -89,21 +96,10 @@ int main()
 		return -1;
 	}
 
-	glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
-
 	while (handle_events(x11_connection)) {
+		render_command_buffer.reset();
 		game_api.tick(game_memory);
-
-		glClear(GL_COLOR_BUFFER_BIT);
-		glBegin(GL_TRIANGLES);
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glVertex2f(-0.5f, -0.5f);
-		glColor3f(0.0f, 1.0f, 0.0f);
-		glVertex2f(0.5f, -0.5f);
-		glColor3f(0.0f, 0.0f, 1.0f);
-		glVertex2f(0.0f, 0.5f);
-		glEnd();
-
+		gl_render(render_command_buffer);
 		window.swap_buffers();
 	}
 

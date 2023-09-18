@@ -5,6 +5,7 @@
 
 struct GameApi {
 	std::size_t game_memory_size;
+	std::size_t render_command_capacity;
 	unsigned int window_width;
 	unsigned int window_height;
 	const char *window_title;

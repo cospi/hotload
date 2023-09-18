@@ -21,4 +21,6 @@ bool Game::init()
 }
 
 void Game::tick()
-{ }
+{
+	platform_.render_command_buffer.clear(Color(0.0f, 0.5f, 1.0f, 1.0f));
+}
