@@ -58,3 +58,12 @@ bool PosixFileSystem::try_get_file_last_modification_time(
 	*out_last_modification_time = status.st_mtime;
 	return true;
 }
+
+bool PosixFileSystem::try_read_file(void *const file, const std::size_t size, unsigned char *const buffer)
+{
+	assert(file != nullptr);
+	assert(size > 0);
+	assert(buffer != nullptr);
+
+	return stdlib_file_try_read(logger_, file, size, buffer);
+}

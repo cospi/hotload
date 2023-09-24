@@ -32,6 +32,16 @@ bool File::init(const char *const path, const char *const mode)
 bool File::try_get_size(std::size_t *const out_size) const
 {
 	assert(file_ != nullptr);
+	assert(out_size != nullptr);
 
 	return file_system_.try_get_file_size(file_, out_size);
+}
+
+bool File::try_read(std::size_t size, unsigned char *const buffer) const
+{
+	assert(file_ != nullptr);
+	assert(size > 0);
+	assert(buffer != nullptr);
+
+	return file_system_.try_read_file(file_, size, buffer);
 }

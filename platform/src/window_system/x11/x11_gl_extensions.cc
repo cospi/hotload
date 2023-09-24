@@ -3,6 +3,10 @@
 #include <cassert>
 #include <cstring>
 
+#include <GL/glx.h>
+
+#include "../../render/gl/gl.hh"
+
 bool x11_gl_has_extension(const char *const extensions, const char *const extension)
 {
 	assert(extensions != nullptr);
@@ -33,4 +37,52 @@ bool x11_gl_has_extension(const char *const extensions, const char *const extens
 	}
 
 	return false;
+}
+
+bool x11_gl_init_extensions()
+{
+	#define INIT_PROC(type, proc) \
+		do { \
+			proc = reinterpret_cast<type>( \
+				glXGetProcAddressARB(reinterpret_cast<const GLubyte *>(#proc)) \
+			); \
+			if (proc == nullptr) { \
+				return false; \
+			} \
+		} while (false)
+
+	INIT_PROC(PFNGLGENBUFFERSPROC, glGenBuffers);
+	INIT_PROC(PFNGLDELETEBUFFERSPROC, glDeleteBuffers);
+	INIT_PROC(PFNGLBINDBUFFERPROC, glBindBuffer);
+	INIT_PROC(PFNGLBUFFERDATAPROC, glBufferData);
+
+	INIT_PROC(PFNGLGENVERTEXARRAYSPROC, glGenVertexArrays);
+	INIT_PROC(PFNGLDELETEVERTEXARRAYSPROC, glDeleteVertexArrays);
+	INIT_PROC(PFNGLBINDVERTEXARRAYPROC, glBindVertexArray);
+
+	INIT_PROC(PFNGLENABLEVERTEXATTRIBARRAYPROC, glEnableVertexAttribArray);
+	INIT_PROC(PFNGLVERTEXATTRIBPOINTERPROC, glVertexAttribPointer);
+
+	INIT_PROC(PFNGLCREATESHADERPROC, glCreateShader);
+	INIT_PROC(PFNGLDELETESHADERPROC, glDeleteShader);
+	INIT_PROC(PFNGLSHADERSOURCEPROC, glShaderSource);
+	INIT_PROC(PFNGLCOMPILESHADERPROC, glCompileShader);
+	INIT_PROC(PFNGLGETSHADERIVPROC, glGetShaderiv);
+	INIT_PROC(PFNGLGETSHADERINFOLOGPROC, glGetShaderInfoLog);
+
+	INIT_PROC(PFNGLCREATEPROGRAMPROC, glCreateProgram);
+	INIT_PROC(PFNGLDELETEPROGRAMPROC, glDeleteProgram);
+	INIT_PROC(PFNGLATTACHSHADERPROC, glAttachShader);
+	INIT_PROC(PFNGLDETACHSHADERPROC, glDetachShader);
+	INIT_PROC(PFNGLLINKPROGRAMPROC, glLinkProgram);
+	INIT_PROC(PFNGLGETPROGRAMIVPROC, glGetProgramiv);
+	INIT_PROC(PFNGLGETPROGRAMINFOLOGPROC, glGetProgramInfoLog);
+	INIT_PROC(PFNGLUSEPROGRAMPROC, glUseProgram);
+
+	INIT_PROC(PFNGLGETUNIFORMLOCATIONPROC, glGetUniformLocation);
+	INIT_PROC(PFNGLUNIFORMMATRIX4FVPROC, glUniformMatrix4fv);
+
+	#undef INIT_PROC
+
+	return true;
 }

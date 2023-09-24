@@ -14,6 +14,7 @@ public:
 	bool init(const char *path, const char *mode);
 
 	bool try_get_size(std::size_t *out_size) const;
+	bool try_read(std::size_t size, unsigned char *buffer) const;
 
 private:
 	IFileSystem &file_system_;

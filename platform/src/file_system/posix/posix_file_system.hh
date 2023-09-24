@@ -16,6 +16,7 @@ public:
 	void close_file(void *file) override;
 	bool try_get_file_size(void *file, std::size_t *out_size) override;
 	bool try_get_file_last_modification_time(void *file, std::time_t *out_last_modification_time) override;
+	bool try_read_file(void *file, std::size_t size, unsigned char *buffer) override;
 
 private:
 	ILogger &logger_;

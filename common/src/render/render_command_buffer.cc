@@ -47,6 +47,39 @@ void RenderCommandBuffer::clear(const Color &color)
 	push_command(command);
 }
 
+void RenderCommandBuffer::set_shader_pipeline(const ShaderPipeline &shader_pipeline)
+{
+	RenderCommand command;
+	command.type = RenderCommandType::SET_SHADER_PIPELINE;
+	command.command.set_shader_pipeline.shader_pipeline = shader_pipeline.get_shader_pipeline();
+	push_command(command);
+}
+
+void RenderCommandBuffer::set_uniform_matrix4(std::int32_t uniform, const Matrix4 &matrix)
+{
+	RenderCommand command;
+	command.type = RenderCommandType::SET_UNIFORM_MATRIX4;
+	command.command.set_uniform_matrix4.uniform = uniform;
+	command.command.set_uniform_matrix4.matrix = matrix;
+	push_command(command);
+}
+
+void RenderCommandBuffer::set_texture(const Texture &texture)
+{
+	RenderCommand command;
+	command.type = RenderCommandType::SET_TEXTURE;
+	command.command.set_texture.texture = texture.get_texture();
+	push_command(command);
+}
+
+void RenderCommandBuffer::draw_mesh(const Mesh &mesh)
+{
+	RenderCommand command;
+	command.type = RenderCommandType::DRAW_MESH;
+	command.command.draw_mesh.mesh = mesh.get_mesh();
+	push_command(command);
+}
+
 const RenderCommand *RenderCommandBuffer::get_commands() const
 {
 	assert(commands_ != nullptr);

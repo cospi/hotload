@@ -61,3 +61,17 @@ bool stdlib_file_try_get_size(ILogger &logger, void *const file, std::size_t *co
 	*out_size = static_cast<std::size_t>(size);
 	return true;
 }
+
+bool stdlib_file_try_read(ILogger &logger, void *const file, const std::size_t size, unsigned char *const buffer)
+{
+	assert(file != nullptr);
+	assert(size > 0);
+	assert(buffer != nullptr);
+
+	std::FILE *const stdlib_file = static_cast<std::FILE *>(file);
+	if (std::fread(buffer, size, 1, stdlib_file) != 1) {
+		logger.log(LogLevel::ERROR, "Reading %zu bytes from file failed.", size);
+		return false;
+	}
+	return true;
+}

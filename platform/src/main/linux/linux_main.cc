@@ -7,9 +7,13 @@
 #include "../../file_system/posix/posix_file_system.hh"
 #include "../../log/stdlib/stdlib_logger.hh"
 #include "../../memory/stdlib/stdlib_allocator.hh"
+#include "../../render/gl/gl_mesh_factory.hh"
 #include "../../render/gl/gl_render.hh"
+#include "../../render/gl/gl_shader_pipeline_factory.hh"
+#include "../../render/gl/gl_texture_factory.hh"
 #include "../../shared_library/posix/posix_shared_library.hh"
 #include "../../window_system/x11/x11_gl_context.hh"
+#include "../../window_system/x11/x11_gl_extensions.hh"
 
 static bool handle_events(const X11Connection &x11_connection)
 {
@@ -87,8 +91,24 @@ int main()
 
 	window.make_context_current(&gl_context);
 
+	if (!x11_gl_init_extensions()) {
+		logger.log(LogLevel::ERROR, "Initializing OpenGL extensions failed.");
+		return -1;
+	}
+
 	PosixFileSystem file_system(logger);
-	Platform platform(logger, allocator, file_system, render_command_buffer);
+	GlShaderPipelineFactory shader_pipeline_factory(logger, allocator, file_system);
+	GlTextureFactory texture_factory(logger, allocator);
+	GlMeshFactory mesh_factory(logger, allocator);
+	Platform platform(
+		logger,
+		allocator,
+		file_system,
+		shader_pipeline_factory,
+		texture_factory,
+		mesh_factory,
+		render_command_buffer
+	);
 	void *const game_memory = game_memory_allocation.get_memory();
 
 	if (!game_api.init(game_memory, &platform)) {
