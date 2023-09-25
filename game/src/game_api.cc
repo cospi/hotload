@@ -31,12 +31,22 @@ static void fini(void *const game_memory)
 	static_cast<Game *>(game_memory)->~Game();
 }
 
-static void tick(void *const game_memory)
+static void tick(void *const game_memory, float delta_time)
 {
 	assert(game_memory != nullptr);
 	assert((reinterpret_cast<std::uintptr_t>(game_memory) % alignof(Game)) == 0);
 
-	static_cast<Game *>(game_memory)->tick();
+	static_cast<Game *>(game_memory)->tick(delta_time);
+}
+
+static void handle_event(void *const game_memory, void *const event)
+{
+	assert(game_memory != nullptr);
+	assert((reinterpret_cast<std::uintptr_t>(game_memory) % alignof(Game)) == 0);
+	assert(event != nullptr);
+	assert((reinterpret_cast<std::uintptr_t>(event) % alignof(Event)) == 0);
+
+	static_cast<Game *>(game_memory)->handle_event(*static_cast<Event *>(event));
 }
 
 void populate_game_api(void *const game_api)
@@ -52,5 +62,6 @@ void populate_game_api(void *const game_api)
 	game_api_actual->window_title = "Hotload";
 	game_api_actual->init = init;
 	game_api_actual->fini = fini;
+	game_api_actual->handle_event = handle_event;
 	game_api_actual->tick = tick;
 }

@@ -1,5 +1,6 @@
 #include <GL/gl.h>
 
+#include <common/events/event.hh>
 #include <common/game/game_api.hh>
 #include <common/memory/allocation.hh>
 #include <common/platform/platform.hh>
@@ -12,18 +13,48 @@
 #include "../../render/gl/gl_shader_pipeline_factory.hh"
 #include "../../render/gl/gl_texture_factory.hh"
 #include "../../shared_library/posix/posix_shared_library.hh"
+#include "../../time/posix/posix_time.hh"
 #include "../../window_system/x11/x11_gl_context.hh"
 #include "../../window_system/x11/x11_gl_extensions.hh"
+#include "../../window_system/x11/x11_keys.hh"
 
-static bool handle_events(const X11Connection &x11_connection)
+static void handle_key_press(const GameApi &game_api, void *const game_memory, XKeyEvent &key_event)
+{
+	Event event;
+	event.type = EventType::KEY_DOWN;
+	event.event.key_down.key = x11_get_key_event_key(key_event);
+	game_api.handle_event(game_memory, &event);
+}
+
+static void handle_key_release(const GameApi &game_api, void *const game_memory, XKeyEvent &key_event)
+{
+	Event event;
+	event.type = EventType::KEY_UP;
+	event.event.key_up.key = x11_get_key_event_key(key_event);
+	game_api.handle_event(game_memory, &event);
+}
+
+static bool handle_events(const X11Connection &x11_connection, const GameApi &game_api, void *const game_memory)
 {
 	const Atom wm_delete_window = x11_connection.get_wm_delete_window();
 	Display *const display = x11_connection.get_display();
 	while (XPending(display) > 0) {
-		XEvent e;
-		XNextEvent(display, &e);
-		if ((e.type == ClientMessage) && (static_cast<Atom>(e.xclient.data.l[0]) == wm_delete_window)) {
-			return false;
+		XEvent event;
+		XNextEvent(display, &event);
+		switch (event.type) {
+		case ClientMessage:
+			if (static_cast<Atom>(event.xclient.data.l[0]) == wm_delete_window) {
+				return false;
+			}
+			break;
+		case KeyPress:
+			handle_key_press(game_api, game_memory, event.xkey);
+			break;
+		case KeyRelease:
+			handle_key_release(game_api, game_memory, event.xkey);
+			break;
+		default:
+			break;
 		}
 	}
 	return true;
@@ -57,6 +88,7 @@ int main()
 		|| (game_api.window_title == nullptr)
 		|| (game_api.init == nullptr)
 		|| (game_api.fini == nullptr)
+		|| (game_api.handle_event == nullptr)
 		|| (game_api.tick == nullptr)
 	) {
 		logger.log(LogLevel::ERROR, "Invalid game API specification.");
@@ -116,9 +148,19 @@ int main()
 		return -1;
 	}
 
-	while (handle_events(x11_connection)) {
+	long long previous_time_nsec = posix_time_nsec();
+
+	while (handle_events(x11_connection, game_api, game_memory)) {
 		render_command_buffer.reset();
-		game_api.tick(game_memory);
+
+		if (const long long time_nsec = posix_time_nsec(); time_nsec > 0LL) {
+			const float delta_time =  static_cast<float>(
+				static_cast<long double>(time_nsec - previous_time_nsec) / NSEC_PER_SEC
+			);
+			game_api.tick(game_memory, delta_time);
+			previous_time_nsec = time_nsec;
+		}
+
 		gl_render(render_command_buffer);
 		window.swap_buffers();
 	}

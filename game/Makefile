@@ -150,7 +150,6 @@ CXXFLAGS += \
 	-Wswitch \
 	-Wswitch-bool \
 	-Wswitch-default \
-	-Wswitch-enum \
 	-Wsync-nand \
 	-Wsynth \
 	-Wtautological-compare \

@@ -28,6 +28,21 @@ struct Matrix4 {
 		return matrix;
 	}
 
+	static Matrix4 translate(const Vector3 &translate)
+	{
+		Matrix4 matrix;
+		std::memset(matrix.elements, 0, sizeof matrix.elements);
+		float *const elements = matrix.elements;
+		elements[0] = 1.0f;
+		elements[3] = translate.x;
+		elements[5] = 1.0f;
+		elements[7] = translate.y;
+		elements[10] = 1.0f;
+		elements[11] = translate.z;
+		elements[15] = 1.0f;
+		return matrix;
+	}
+
 	float elements[16];
 };
 

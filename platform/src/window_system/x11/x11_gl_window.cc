@@ -103,7 +103,7 @@ bool X11GlWindow::init(const unsigned int width, const unsigned int height, cons
 	XSetWindowAttributes window_attribs;
 	window_attribs.background_pixmap = None;
 	window_attribs.border_pixel = 0;
-	window_attribs.event_mask = StructureNotifyMask;
+	window_attribs.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask;
 	window_attribs.colormap = colormap;
 
 	const Window window = XCreateWindow(

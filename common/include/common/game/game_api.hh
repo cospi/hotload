@@ -11,7 +11,8 @@ struct GameApi {
 	const char *window_title;
 	bool (*init)(void *game_memory, void *game_api);
 	void (*fini)(void *game_memory);
-	void (*tick)(void *game_memory);
+	void (*handle_event)(void *game_memory, void *event);
+	void (*tick)(void *game_memory, float delta_time);
 };
 
 #endif // HOTLOAD_COMMON_GAME_GAME_API_HH_

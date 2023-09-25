@@ -90,7 +90,6 @@ CXXFLAGS += \
 	-Wliteral-suffix \
 	-Wlogical-not-parentheses \
 	-Wlogical-op \
-	-Wlong-long \
 	-Wmain \
 	-Wmaybe-uninitialized \
 	-Wmemset-elt-size \

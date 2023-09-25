@@ -21,7 +21,7 @@ enum class RenderCommandType {
 struct RenderCommandClear {
 	RenderCommandClear() = default;
 
-	RenderCommandClear(const Color &in_clear_color)
+	explicit RenderCommandClear(const Color &in_clear_color)
 		: clear_color(in_clear_color)
 	{ }
 
@@ -31,7 +31,7 @@ struct RenderCommandClear {
 struct RenderCommandSetShaderPipeline {
 	RenderCommandSetShaderPipeline() = default;
 
-	RenderCommandSetShaderPipeline(void *const in_shader_pipeline)
+	explicit RenderCommandSetShaderPipeline(void *const in_shader_pipeline)
 		: shader_pipeline(in_shader_pipeline)
 	{ }
 
@@ -41,7 +41,7 @@ struct RenderCommandSetShaderPipeline {
 struct RenderCommandSetUniformMatrix4 {
 	RenderCommandSetUniformMatrix4() = default;
 
-	RenderCommandSetUniformMatrix4(const std::int32_t in_uniform, const Matrix4 &in_matrix)
+	explicit RenderCommandSetUniformMatrix4(const std::int32_t in_uniform, const Matrix4 &in_matrix)
 		: uniform(in_uniform)
 		, matrix(in_matrix)
 	{ }
@@ -53,7 +53,7 @@ struct RenderCommandSetUniformMatrix4 {
 struct RenderCommandSetTexture {
 	RenderCommandSetTexture() = default;
 
-	RenderCommandSetTexture(void *const in_texture)
+	explicit RenderCommandSetTexture(void *const in_texture)
 		: texture(in_texture)
 	{ }
 
@@ -63,7 +63,7 @@ struct RenderCommandSetTexture {
 struct RenderCommandDrawMesh {
 	RenderCommandDrawMesh() = default;
 
-	RenderCommandDrawMesh(void *const in_mesh)
+	explicit RenderCommandDrawMesh(void *const in_mesh)
 		: mesh(in_mesh)
 	{ }
 
