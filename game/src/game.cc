@@ -19,7 +19,6 @@ static const float MOVE_SPEED = 5.0f;
 static const float JUMP_SPEED = 10.0f;
 static const float GRAVITY = -20.0f;
 
-
 Game::Game(Platform &platform)
 	: platform_(platform)
 	, font_(platform.logger, platform.allocator, platform.file_system, platform.texture_factory)
@@ -60,11 +59,6 @@ bool Game::init()
 		}
 	}
 
-	Platform &platform = platform_;
-	ILogger &logger = platform.logger;
-	IAllocator &allocator = platform.allocator;
-	IFileSystem &file_system = platform.file_system;
-
 	{
 		Vertex vertices[CUBE_VERTEX_COUNT];
 		std::uint16_t indices[CUBE_INDEX_COUNT];
@@ -86,7 +80,8 @@ bool Game::init()
 	}
 
 	{
-		Image image(logger, allocator, file_system);
+		Platform &platform = platform_;
+		Image image(platform.logger, platform.allocator, platform.file_system);
 		if (!image.init_from_tga("test") || !mesh_texture_.init(image, TextureFilter::NEAREST)) {
 			return false;
 		}
