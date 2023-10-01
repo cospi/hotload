@@ -7,12 +7,14 @@
 struct Vertex {
 	Vertex() = default;
 
-	Vertex(const Vector3 &in_position, const Vector2 &in_uv)
+	Vertex(const Vector3 &in_position, const Vector3 &in_normal, const Vector2 &in_uv)
 		: position(in_position)
+		, normal(in_normal)
 		, uv(in_uv)
 	{ }
 
 	Vector3 position;
+	Vector3 normal;
 	Vector2 uv;
 };
 

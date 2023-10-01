@@ -3,12 +3,13 @@
 
 #include <common/log/i_logger.hh>
 #include <common/render/image.hh>
+#include <common/render/texture_filter.hh>
 
 #include "gl.hh"
 
 class GlTexture final {
 public:
-	GlTexture(ILogger &logger, const Image &image);
+	GlTexture(ILogger &logger, const Image &image, TextureFilter filter);
 	~GlTexture();
 
 	GlTexture(const GlTexture &) = delete;

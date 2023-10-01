@@ -20,6 +20,14 @@ struct Vector3 {
 		return *this;
 	}
 
+	Vector3 &operator-=(const Vector3 &rhs)
+	{
+		x -= rhs.x;
+		y -= rhs.y;
+		z -= rhs.z;
+		return *this;
+	}
+
 	Vector3 &operator*=(const float rhs)
 	{
 		x *= rhs;
@@ -50,5 +58,25 @@ struct Vector3 {
 	float y;
 	float z;
 };
+
+inline Vector3 operator+(Vector3 lhs, const Vector3 &rhs)
+{
+	return lhs += rhs;
+}
+
+inline Vector3 operator-(Vector3 lhs, const Vector3 &rhs)
+{
+	return lhs -= rhs;
+}
+
+inline Vector3 operator*(Vector3 lhs, const float rhs)
+{
+	return lhs *= rhs;
+}
+
+inline Vector3 operator*(const float lhs, const Vector3 rhs)
+{
+	return rhs * lhs;
+}
 
 #endif // HOTLOAD_COMMON_MATH_VECTOR3_HH_

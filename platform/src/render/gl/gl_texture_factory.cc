@@ -11,14 +11,14 @@ GlTextureFactory::GlTextureFactory(ILogger &logger, IAllocator &allocator)
 	, allocator_(allocator)
 { }
 
-void *GlTextureFactory::create_texture(const Image &image)
+void *GlTextureFactory::create_texture(const Image &image, const TextureFilter filter)
 {
 	void *const texture_memory = allocator_.allocate(sizeof(GlTexture));
 	if (texture_memory == nullptr) {
 		return nullptr;
 	}
 
-	new(texture_memory) GlTexture(logger_, image);
+	new(texture_memory) GlTexture(logger_, image, filter);
 	return texture_memory;
 }
 

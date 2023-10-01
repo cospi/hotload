@@ -5,16 +5,33 @@
 #include <cassert>
 #include <cinttypes>
 
+#include <common/render/render_buffer.hh>
+
 #include "gl_mesh.hh"
 #include "gl_program.hh"
 #include "gl_sprite_batch.hh"
 #include "gl_texture.hh"
 
-static void render_clear(const RenderCommandClear &clear)
+static GLbitfield convert_clear_buffer_flags(const int buffer_flags)
 {
-	const Color &color = clear.clear_color;
-	glClearColor(color.r, color.g, color.b, color.a);
-	glClear(GL_COLOR_BUFFER_BIT);
+	GLbitfield flags = 0;
+	if ((buffer_flags & RenderBuffer::COLOR) != 0) {
+		flags |= GL_COLOR_BUFFER_BIT;
+	}
+	if ((buffer_flags & RenderBuffer::DEPTH) != 0) {
+		flags |= GL_DEPTH_BUFFER_BIT;
+	}
+	return flags;
+}
+
+static void render_clear_render_target(const RenderCommandClearRenderTarget &clear_render_target)
+{
+	const int buffer_flags = clear_render_target.buffer_flags;
+	if ((buffer_flags & RenderBuffer::COLOR) != 0) {
+		const Color &color = clear_render_target.color;
+		glClearColor(color.r, color.g, color.b, color.a);
+	}
+	glClear(convert_clear_buffer_flags(buffer_flags));
 }
 
 static void render_set_shader_pipeline(const RenderCommandSetShaderPipeline &set_shader_pipeline)
@@ -61,8 +78,8 @@ static void render_draw_sprite_batch(const RenderCommandDrawSpriteBatch &draw_sp
 static void render(const RenderCommand &command)
 {
 	switch (command.type) {
-	case RenderCommandType::CLEAR:
-		render_clear(command.command.clear);
+	case RenderCommandType::CLEAR_RENDER_TARGET:
+		render_clear_render_target(command.command.clear_render_target);
 		break;
 	case RenderCommandType::SET_SHADER_PIPELINE:
 		render_set_shader_pipeline(command.command.set_shader_pipeline);

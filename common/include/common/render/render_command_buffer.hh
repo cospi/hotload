@@ -12,7 +12,7 @@
 #include "../memory/i_allocator.hh"
 
 enum class RenderCommandType {
-	CLEAR,
+	CLEAR_RENDER_TARGET,
 	SET_SHADER_PIPELINE,
 	SET_UNIFORM_MATRIX4,
 	SET_TEXTURE,
@@ -20,14 +20,16 @@ enum class RenderCommandType {
 	DRAW_SPRITE_BATCH
 };
 
-struct RenderCommandClear {
-	RenderCommandClear() = default;
+struct RenderCommandClearRenderTarget {
+	RenderCommandClearRenderTarget() = default;
 
-	explicit RenderCommandClear(const Color &in_clear_color)
-		: clear_color(in_clear_color)
+	explicit RenderCommandClearRenderTarget(const int in_buffer_flags, const Color &in_color)
+		: buffer_flags(in_buffer_flags)
+		, color(in_color)
 	{ }
 
-	Color clear_color;
+	int buffer_flags;
+	Color color;
 };
 
 struct RenderCommandSetShaderPipeline {
@@ -85,7 +87,7 @@ struct RenderCommandDrawSpriteBatch {
 struct RenderCommand {
 	RenderCommandType type;
 	union {
-		RenderCommandClear clear;
+		RenderCommandClearRenderTarget clear_render_target;
 		RenderCommandSetShaderPipeline set_shader_pipeline;
 		RenderCommandSetUniformMatrix4 set_uniform_matrix4;
 		RenderCommandSetTexture set_texture;
@@ -106,7 +108,7 @@ public:
 
 	void reset();
 
-	void clear(const Color &color);
+	void clear_render_target(int buffer_flags, const Color &color);
 	void set_shader_pipeline(const ShaderPipeline &shader_pipeline);
 	void set_uniform_matrix4(std::int32_t uniform, const Matrix4 &matrix);
 	void set_texture(const Texture &texture);

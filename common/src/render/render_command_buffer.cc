@@ -39,11 +39,12 @@ void RenderCommandBuffer::reset()
 	command_count_ = 0;
 }
 
-void RenderCommandBuffer::clear(const Color &color)
+void RenderCommandBuffer::clear_render_target(const int buffer_flags, const Color &color)
 {
 	RenderCommand command;
-	command.type = RenderCommandType::CLEAR;
-	command.command.clear.clear_color = color;
+	command.type = RenderCommandType::CLEAR_RENDER_TARGET;
+	command.command.clear_render_target.buffer_flags = buffer_flags;
+	command.command.clear_render_target.color = color;
 	push_command(command);
 }
 

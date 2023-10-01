@@ -46,7 +46,7 @@ bool GlSpriteBatch::init(const std::size_t sprite_capacity)
 
 		std::uint16_t *const indices = static_cast<std::uint16_t *>(indices_allocation.get_memory());
 		for (std::size_t i = 0; i < sprite_capacity; ++i) {
-			const std::uint16_t vertex_offset = static_cast<std::uint16_t>(i * VERTICES_PER_SPRITE);
+			const uint16_t vertex_offset = static_cast<std::uint16_t>(i * VERTICES_PER_SPRITE);
 			const std::size_t indices_offset = i * INDICES_PER_SPRITE;
 			indices[indices_offset] = vertex_offset;
 			indices[indices_offset + 1] = static_cast<std::uint16_t>(vertex_offset + 1);

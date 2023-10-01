@@ -10,7 +10,7 @@ public:
 	explicit GlTextureFactory(ILogger &logger, IAllocator &allocator);
 	~GlTextureFactory() override = default;
 
-	void *create_texture(const Image &image) override;
+	void *create_texture(const Image &image, TextureFilter filter) override;
 	void destroy_texture(void *texture) override;
 
 private:

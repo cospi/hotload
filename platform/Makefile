@@ -68,7 +68,6 @@ CXXFLAGS += \
 	-Wextra \
 	-Wextra-semi \
 	-Wfloat-conversion \
-	-Wfloat-equal \
 	-Wformat-contains-nul \
 	-Wformat-extra-args \
 	-Wformat-nonliteral \

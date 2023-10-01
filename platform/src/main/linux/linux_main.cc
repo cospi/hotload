@@ -149,6 +149,10 @@ int main()
 		return -1;
 	}
 
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	long long previous_time_nsec = posix_time_nsec();
 
 	while (handle_events(x11_connection, game_api, game_memory)) {

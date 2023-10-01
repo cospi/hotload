@@ -43,6 +43,7 @@ GlMesh::GlMesh(
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(
 		0,
 		3,
@@ -53,6 +54,14 @@ GlMesh::GlMesh(
 	);
 	glVertexAttribPointer(
 		1,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		sizeof(Vertex),
+		reinterpret_cast<GLvoid *>(offsetof(Vertex, normal))
+	);
+	glVertexAttribPointer(
+		2,
 		2,
 		GL_FLOAT,
 		GL_FALSE,

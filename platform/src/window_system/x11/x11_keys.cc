@@ -17,6 +17,8 @@ static const KeySymToKey KEY_SYM_TO_KEY[] {
 	{ XK_Left, Key::LEFT_ARROW },
 	{ XK_Right, Key::RIGHT_ARROW },
 
+	{ XK_space, Key::SPACE },
+
 	{ XK_0, Key::ALPHA_0 },
 	{ XK_1, Key::ALPHA_1 },
 	{ XK_2, Key::ALPHA_2 },

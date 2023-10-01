@@ -9,6 +9,8 @@ enum class Key {
 	LEFT_ARROW,
 	RIGHT_ARROW,
 
+	SPACE,
+
 	ALPHA_0,
 	ALPHA_1,
 	ALPHA_2,
