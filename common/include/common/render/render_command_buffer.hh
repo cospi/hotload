@@ -6,6 +6,7 @@
 #include "color.hh"
 #include "mesh.hh"
 #include "shader_pipeline.hh"
+#include "sprite_batch.hh"
 #include "texture.hh"
 #include "../math/matrix4.hh"
 #include "../memory/i_allocator.hh"
@@ -15,7 +16,8 @@ enum class RenderCommandType {
 	SET_SHADER_PIPELINE,
 	SET_UNIFORM_MATRIX4,
 	SET_TEXTURE,
-	DRAW_MESH
+	DRAW_MESH,
+	DRAW_SPRITE_BATCH
 };
 
 struct RenderCommandClear {
@@ -41,7 +43,7 @@ struct RenderCommandSetShaderPipeline {
 struct RenderCommandSetUniformMatrix4 {
 	RenderCommandSetUniformMatrix4() = default;
 
-	explicit RenderCommandSetUniformMatrix4(const std::int32_t in_uniform, const Matrix4 &in_matrix)
+	RenderCommandSetUniformMatrix4(const std::int32_t in_uniform, const Matrix4 &in_matrix)
 		: uniform(in_uniform)
 		, matrix(in_matrix)
 	{ }
@@ -70,6 +72,16 @@ struct RenderCommandDrawMesh {
 	void *mesh;
 };
 
+struct RenderCommandDrawSpriteBatch {
+	RenderCommandDrawSpriteBatch() = default;
+
+	explicit RenderCommandDrawSpriteBatch(void *const in_sprite_batch)
+		: sprite_batch(in_sprite_batch)
+	{ }
+
+	void *sprite_batch;
+};
+
 struct RenderCommand {
 	RenderCommandType type;
 	union {
@@ -78,6 +90,7 @@ struct RenderCommand {
 		RenderCommandSetUniformMatrix4 set_uniform_matrix4;
 		RenderCommandSetTexture set_texture;
 		RenderCommandDrawMesh draw_mesh;
+		RenderCommandDrawSpriteBatch draw_sprite_batch;
 	} command;
 };
 
@@ -98,6 +111,7 @@ public:
 	void set_uniform_matrix4(std::int32_t uniform, const Matrix4 &matrix);
 	void set_texture(const Texture &texture);
 	void draw_mesh(const Mesh &mesh);
+	void draw_sprite_batch(const SpriteBatch &sprite_batch);
 
 	const RenderCommand *get_commands() const;
 	std::size_t get_command_capacity() const;

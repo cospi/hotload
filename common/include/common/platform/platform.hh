@@ -7,6 +7,7 @@
 #include "../render/render_command_buffer.hh"
 #include "../render/i_mesh_factory.hh"
 #include "../render/i_shader_pipeline_factory.hh"
+#include "../render/i_sprite_batch_factory.hh"
 #include "../render/i_texture_factory.hh"
 
 class Platform final {
@@ -18,6 +19,7 @@ public:
 		IShaderPipelineFactory &in_shader_pipeline_factory,
 		ITextureFactory &in_texture_factory,
 		IMeshFactory &in_mesh_factory,
+		ISpriteBatchFactory &in_sprite_batch_factory,
 		RenderCommandBuffer &in_render_command_buffer
 	);
 	~Platform() = default;
@@ -31,6 +33,7 @@ public:
 	IShaderPipelineFactory &shader_pipeline_factory;
 	ITextureFactory &texture_factory;
 	IMeshFactory &mesh_factory;
+	ISpriteBatchFactory &sprite_batch_factory;
 	RenderCommandBuffer &render_command_buffer;
 };
 

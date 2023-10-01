@@ -1,5 +1,3 @@
-#include <GL/gl.h>
-
 #include <common/events/event.hh>
 #include <common/game/game_api.hh>
 #include <common/memory/allocation.hh>
@@ -11,6 +9,7 @@
 #include "../../render/gl/gl_mesh_factory.hh"
 #include "../../render/gl/gl_render.hh"
 #include "../../render/gl/gl_shader_pipeline_factory.hh"
+#include "../../render/gl/gl_sprite_batch_factory.hh"
 #include "../../render/gl/gl_texture_factory.hh"
 #include "../../shared_library/posix/posix_shared_library.hh"
 #include "../../time/posix/posix_time.hh"
@@ -132,6 +131,7 @@ int main()
 	GlShaderPipelineFactory shader_pipeline_factory(logger, allocator, file_system);
 	GlTextureFactory texture_factory(logger, allocator);
 	GlMeshFactory mesh_factory(logger, allocator);
+	GlSpriteBatchFactory sprite_batch_factory(logger, allocator);
 	Platform platform(
 		logger,
 		allocator,
@@ -139,6 +139,7 @@ int main()
 		shader_pipeline_factory,
 		texture_factory,
 		mesh_factory,
+		sprite_batch_factory,
 		render_command_buffer
 	);
 	void *const game_memory = game_memory_allocation.get_memory();

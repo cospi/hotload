@@ -80,6 +80,14 @@ void RenderCommandBuffer::draw_mesh(const Mesh &mesh)
 	push_command(command);
 }
 
+void RenderCommandBuffer::draw_sprite_batch(const SpriteBatch &sprite_batch)
+{
+	RenderCommand command;
+	command.type = RenderCommandType::DRAW_SPRITE_BATCH;
+	command.command.draw_sprite_batch.sprite_batch = sprite_batch.get_sprite_batch();
+	push_command(command);
+}
+
 const RenderCommand *RenderCommandBuffer::get_commands() const
 {
 	assert(commands_ != nullptr);

@@ -24,11 +24,10 @@ private:
 	Platform &platform_;
 	ShaderPipeline shader_pipeline_;
 	std::int32_t projection_uniform_;
-	std::int32_t translation_uniform_;
 	Texture texture_;
-	Mesh mesh_;
+	SpriteBatch sprite_batch_;
 	Matrix4 projection_;
-	Vector3 position_;
+	Vector2 position_;
 	bool up_;
 	bool down_;
 	bool left_;

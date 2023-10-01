@@ -7,6 +7,7 @@
 
 #include "gl_mesh.hh"
 #include "gl_program.hh"
+#include "gl_sprite_batch.hh"
 #include "gl_texture.hh"
 
 static void render_clear(const RenderCommandClear &clear)
@@ -47,6 +48,16 @@ static void render_draw_mesh(const RenderCommandDrawMesh &draw_mesh)
 	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.index_count), GL_UNSIGNED_SHORT, nullptr);
 }
 
+static void render_draw_sprite_batch(const RenderCommandDrawSpriteBatch &draw_sprite_batch)
+{
+	assert(draw_sprite_batch.sprite_batch != nullptr);
+	assert((reinterpret_cast<std::uintptr_t>(draw_sprite_batch.sprite_batch) % alignof(GlSpriteBatch)) == 0);
+
+	const GlSpriteBatch &sprite_batch = *static_cast<const GlSpriteBatch *>(draw_sprite_batch.sprite_batch);
+	glBindVertexArray(sprite_batch.get_vertex_array().vertex_array);
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(sprite_batch.get_index_count()), GL_UNSIGNED_SHORT, nullptr);
+}
+
 static void render(const RenderCommand &command)
 {
 	switch (command.type) {
@@ -64,6 +75,9 @@ static void render(const RenderCommand &command)
 		break;
 	case RenderCommandType::DRAW_MESH:
 		render_draw_mesh(command.command.draw_mesh);
+		break;
+	case RenderCommandType::DRAW_SPRITE_BATCH:
+		render_draw_sprite_batch(command.command.draw_sprite_batch);
 		break;
 	default:
 		assert(false);

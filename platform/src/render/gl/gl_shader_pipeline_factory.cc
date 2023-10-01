@@ -80,6 +80,7 @@ void *GlShaderPipelineFactory::create_shader_pipeline(const char *const filename
 		allocator.free(program_memory);
 		return nullptr;
 	}
+
 	return program_memory;
 }
 
