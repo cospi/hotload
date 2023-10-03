@@ -24,10 +24,8 @@ typedef void (APIENTRY * PFNGLDELETEBUFFERSPROC)(GLsizei, const GLuint *);
 typedef void (APIENTRY * PFNGLBINDBUFFERPROC)(GLenum, GLuint);
 typedef void (APIENTRY * PFNGLBUFFERDATAPROC)(GLenum, GLsizeiptr, const GLvoid *, GLenum);
 typedef void *(APIENTRY * PFNGLMAPBUFFERPROC)(GLenum, GLenum);
-typedef void (APIENTRY * PFNGLUNMAPBUFFERPROC)(GLenum);
 
 typedef void (APIENTRY * PFNGLGENVERTEXARRAYSPROC)(GLsizei, GLuint *);
-typedef void (APIENTRY * PFNGLDELETEVERTEXARRAYSPROC)(GLsizei, GLuint *);
 typedef void (APIENTRY * PFNGLBINDVERTEXARRAYPROC)(GLuint);
 
 typedef void (APIENTRY * PFNGLENABLEVERTEXATTRIBARRAYPROC)(GLuint);
@@ -35,7 +33,6 @@ typedef void (APIENTRY * PFNGLVERTEXATTRIBPOINTERPROC)(GLuint, GLint, GLenum, GL
 
 typedef GLuint (APIENTRY * PFNGLCREATESHADERPROC)(GLenum);
 typedef void (APIENTRY * PFNGLDELETESHADERPROC)(GLuint);
-typedef void (APIENTRY * PFNGLSHADERSOURCEPROC)(GLuint, GLsizei, const GLchar **, const GLint *);
 typedef void (APIENTRY * PFNGLCOMPILESHADERPROC)(GLuint);
 typedef void (APIENTRY * PFNGLGETSHADERINFOLOGPROC)(GLuint, GLsizei, GLsizei *, GLchar *);
 typedef void (APIENTRY * PFNGLGETSHADERIVPROC)(GLuint, GLenum, GLint *);
@@ -51,6 +48,12 @@ typedef void (APIENTRY * PFNGLUSEPROGRAMPROC)(GLuint);
 
 typedef GLint (APIENTRY * PFNGLGETUNIFORMLOCATIONPROC)(GLuint, const GLchar *);
 typedef void (APIENTRY * PFNGLUNIFORMMATRIX4FVPROC)(GLint, GLsizei, GLboolean, const GLfloat *);
+
+#ifdef _WIN32
+typedef void (APIENTRY * PFNGLUNMAPBUFFERPROC)(GLenum);
+typedef void (APIENTRY * PFNGLDELETEVERTEXARRAYSPROC)(GLsizei, GLuint *);
+typedef void (APIENTRY * PFNGLSHADERSOURCEPROC)(GLuint, GLsizei, const GLchar **, const GLint *);
+#endif // _WIN32
 
 extern PFNGLGENBUFFERSPROC glGenBuffers;
 extern PFNGLDELETEBUFFERSPROC glDeleteBuffers;
