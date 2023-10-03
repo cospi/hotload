@@ -14,7 +14,7 @@ void *StdlibAllocator::allocate(const std::size_t size)
 
 	void *const memory = std::malloc(size);
 	if (memory == nullptr) {
-		logger_.log(LogLevel::ERROR, "Allocating %zu bytes of memory failed.", size);
+		logger_.log(LogLevel::ERR, "Allocating %zu bytes of memory failed.", size);
 		return nullptr;
 	}
 

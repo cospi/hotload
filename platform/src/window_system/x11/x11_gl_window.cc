@@ -80,7 +80,7 @@ bool X11GlWindow::init(const unsigned int width, const unsigned int height, cons
 	Display *const display = connection.get_display();
 	if (!has_required_glx_version(display)) {
 		logger_.log(
-			LogLevel::ERROR,
+			LogLevel::ERR,
 			"Required GLX version (minimum %d.%d) not supported.",
 			GLX_MAJOR_MIN,
 			GLX_MINOR_MIN
@@ -91,7 +91,7 @@ bool X11GlWindow::init(const unsigned int width, const unsigned int height, cons
 	const int screen = connection.get_default_screen();
 	const GLXFBConfig fb_config = find_fb_config(display, screen);
 	if (fb_config == nullptr) {
-		logger_.log(LogLevel::ERROR, "Getting framebuffer configuration failed.");
+		logger_.log(LogLevel::ERR, "Getting framebuffer configuration failed.");
 		return false;
 	}
 

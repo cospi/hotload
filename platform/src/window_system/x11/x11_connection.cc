@@ -28,7 +28,7 @@ bool X11Connection::init(const char *const display_name)
 
 	Display *const display = XOpenDisplay(display_name);
 	if (display == nullptr) {
-		logger_.log(LogLevel::ERROR, "Connecting to X server failed.");
+		logger_.log(LogLevel::ERR, "Connecting to X server failed.");
 		return false;
 	}
 

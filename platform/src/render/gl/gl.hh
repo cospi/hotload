@@ -3,11 +3,6 @@
 
 #include <cstddef>
 
-#ifdef _WIN32
-	// \note Prevent ERROR from conflicting with LogLevel::ERROR.
-	#define NOGDI
-#endif // _WIN32
-
 #include <GL/gl.h>
 
 typedef std::ptrdiff_t GLsizeiptr;

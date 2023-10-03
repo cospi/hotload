@@ -64,13 +64,13 @@ bool Image::init_from_tga(const char *const filename)
 	}
 
 	if (std::memcmp(header, UNCOMPRESSED_TGA_HEADER, sizeof UNCOMPRESSED_TGA_HEADER) != 0) {
-		logger_.log(LogLevel::ERROR, "Unsupported TGA header.");
+		logger_.log(LogLevel::ERR, "Unsupported TGA header.");
 		return false;
 	}
 
 	const unsigned char bytes_per_pixel = header[16] / 8;
 	if ((bytes_per_pixel != 3 /* BGR */) && (bytes_per_pixel != 4 /* BGRA */)) {
-		logger_.log(LogLevel::ERROR, "Unsupported TGA bytes per pixel.");
+		logger_.log(LogLevel::ERR, "Unsupported TGA bytes per pixel.");
 		return false;
 	}
 

@@ -9,7 +9,7 @@ static char *get_program_info_log(const GLuint program, ILogger &logger, IAlloca
 	GLint length = 0;
 	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
 	if (length <= 0) {
-		logger.log(LogLevel::ERROR, "Getting program info log length failed.");
+		logger.log(LogLevel::ERR, "Getting program info log length failed.");
 		return nullptr;
 	}
 
@@ -32,9 +32,9 @@ static bool link_program(const GLuint program, ILogger &logger, IAllocator &allo
 	glLinkProgram(program);
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE) {
-		logger.log(LogLevel::ERROR, "Linking OpenGL program (%lu) failed.", program);
+		logger.log(LogLevel::ERR, "Linking OpenGL program (%lu) failed.", program);
 		if (char *const info_log = get_program_info_log(program, logger, allocator); info_log != nullptr) {
-			logger.log(LogLevel::ERROR, info_log);
+			logger.log(LogLevel::ERR, info_log);
 			allocator.free(info_log);
 		}
 		return false;
@@ -65,7 +65,7 @@ bool GlProgram::init(const GlShader **const shaders, const std::size_t shader_co
 
 	const GLuint program = glCreateProgram();
 	if (program == 0) {
-		logger.log(LogLevel::ERROR, "Creating OpenGL program failed.");
+		logger.log(LogLevel::ERR, "Creating OpenGL program failed.");
 		return false;
 	}
 

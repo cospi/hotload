@@ -108,7 +108,7 @@ bool GlShaderPipelineFactory::try_get_shader_pipeline_uniform(
 	const GLint uniform =
 		glGetUniformLocation(static_cast<GlProgram *>(shader_pipeline)->get_program(), uniform_name);
 	if (uniform == -1) {
-		logger_.log(LogLevel::ERROR, "Getting uniform \"%s\" failed.", uniform_name);
+		logger_.log(LogLevel::ERR, "Getting uniform \"%s\" failed.", uniform_name);
 		return false;
 	}
 

@@ -19,7 +19,7 @@ bool PosixSharedLibrary::init(const char *const filename, const int flag)
 
 	void *const handle = dlopen(filename, flag);
 	if (handle == nullptr) {
-		logger_.log(LogLevel::ERROR, dlerror());
+		logger_.log(LogLevel::ERR, dlerror());
 		return false;
 	}
 
@@ -54,7 +54,7 @@ bool PosixSharedLibrary::try_get_symbol(const char *const symbol_name, void **co
 	dlerror(); // \note Clear existing errors.
 	void *const symbol = dlsym(handle_, symbol_name);
 	if (const char *const error = dlerror(); error != nullptr) {
-		logger_.log(LogLevel::ERROR, error);
+		logger_.log(LogLevel::ERR, error);
 		return false;
 	}
 

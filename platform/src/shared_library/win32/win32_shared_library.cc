@@ -20,7 +20,7 @@ bool Win32SharedLibrary::init(const char *const path)
 
 	const HMODULE handle = LoadLibraryA(path);
 	if (handle == nullptr) {
-		logger_.log(LogLevel::ERROR, "Opening Win32 shared library \"%s\" failed.", path);
+		logger_.log(LogLevel::ERR, "Opening Win32 shared library \"%s\" failed.", path);
 		return false;
 	}
 
@@ -37,6 +37,7 @@ void Win32SharedLibrary::fini()
 {
 	if (const HMODULE handle = handle_; handle != nullptr) {
 		FreeLibrary(handle);
+		handle_ = nullptr;
 		logger_.log(
 			LogLevel::INFO,
 			"Closed Win32 shared library (%" PRIxPTR ").",
@@ -53,7 +54,7 @@ bool Win32SharedLibrary::try_get_symbol(const char *const symbol_name, void **co
 
 	const FARPROC symbol = GetProcAddress(handle_, symbol_name);
 	if (symbol == nullptr) {
-		logger_.log(LogLevel::ERROR, "Getting symbol \"%s\" failed.", symbol_name);
+		logger_.log(LogLevel::ERR, "Getting symbol \"%s\" failed.", symbol_name);
 		return false;
 	}
 

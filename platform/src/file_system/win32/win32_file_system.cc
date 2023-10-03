@@ -1,4 +1,4 @@
-#include "posix_file_system.hh"
+#include "win32_file_system.hh"
 
 #include <sys/stat.h>
 
@@ -8,11 +8,11 @@
 
 #include "../stdlib/stdlib_file_utils.hh"
 
-PosixFileSystem::PosixFileSystem(ILogger &logger)
+Win32FileSystem::Win32FileSystem(ILogger &logger)
 	: logger_(logger)
 { }
 
-void *PosixFileSystem::open_file(const char *const path, const char *const mode)
+void *Win32FileSystem::open_file(const char *const path, const char *const mode)
 {
 	assert(path != nullptr);
 	assert(mode != nullptr);
@@ -20,14 +20,14 @@ void *PosixFileSystem::open_file(const char *const path, const char *const mode)
 	return stdlib_file_open(logger_, path, mode);
 }
 
-void PosixFileSystem::close_file(void *const file)
+void Win32FileSystem::close_file(void *const file)
 {
 	assert(file != nullptr);
 
 	stdlib_file_close(logger_, file);
 }
 
-bool PosixFileSystem::try_get_file_size(void *const file, std::size_t *const out_size)
+bool Win32FileSystem::try_get_file_size(void *const file, std::size_t *const out_size)
 {
 	assert(file != nullptr);
 	assert(out_size != nullptr);
@@ -35,7 +35,7 @@ bool PosixFileSystem::try_get_file_size(void *const file, std::size_t *const out
 	return stdlib_file_try_get_size(logger_, file, out_size);
 }
 
-bool PosixFileSystem::try_get_file_last_modification_time(
+bool Win32FileSystem::try_get_file_last_modification_time(
 	const char *const path,
 	std::time_t *const out_last_modification_time
 )
@@ -43,8 +43,8 @@ bool PosixFileSystem::try_get_file_last_modification_time(
 	assert(path != nullptr);
 	assert(out_last_modification_time != nullptr);
 
-	struct stat status;
-	if (stat(path, &status) == -1) {
+	struct _stat status;
+	if (_stat(path, &status) == -1) {
 		logger_.log(LogLevel::ERR, "Getting file status failed.");
 		return false;
 	}
@@ -53,7 +53,7 @@ bool PosixFileSystem::try_get_file_last_modification_time(
 	return true;
 }
 
-bool PosixFileSystem::try_read_file(void *const file, const std::size_t size, unsigned char *const buffer)
+bool Win32FileSystem::try_read_file(void *const file, const std::size_t size, unsigned char *const buffer)
 {
 	assert(file != nullptr);
 	assert(size > 0);

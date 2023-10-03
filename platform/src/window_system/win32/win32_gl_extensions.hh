@@ -1,0 +1,10 @@
+#ifndef HOTLOAD_PLATFORM_WINDOW_SYSTEM_WIN32_WIN32_GL_EXTENSIONS_HH_
+#define HOTLOAD_PLATFORM_WINDOW_SYSTEM_WIN32_WIN32_GL_EXTENSIONS_HH_
+
+#include <Windows.h>
+
+bool win32_gl_init_context_creation_extensions(HINSTANCE instance);
+HGLRC win32_gl_create_context(HDC device_context);
+bool win32_gl_init_extensions(void);
+
+#endif // HOTLOAD_PLATFORM_WINDOW_SYSTEM_WIN32_WIN32_GL_EXTENSIONS_HH_

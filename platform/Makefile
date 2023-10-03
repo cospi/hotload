@@ -24,8 +24,11 @@ ifeq ($(OS), Windows_NT)
 else
 	SRC := \
 		$(shell find $(SRC_DIR) -name *$(SRC_EXT) \
-		! -path "$(SRC_DIR)main/windows/" \
-		! -path "$(SRC_DIR)shared_library/win32/")
+		! -path "$(SRC_DIR)main/windows/*" \
+		! -path "$(SRC_DIR)file_system/win32/*" \
+		! -path "$(SRC_DIR)shared_library/win32/*" \
+		! -path "$(SRC_DIR)time/win32/*" \
+		! -path "$(SRC_DIR)window_system/win32/*")
 endif
 
 OBJ := $(SRC:$(SRC_DIR)%$(SRC_EXT)=$(OBJ_DIR)%$(OBJ_EXT))

@@ -8,9 +8,9 @@ static const char *get_log_level_name(const LogLevel level)
 	switch (level) {
 	case LogLevel::INFO:
 		return "Info";
-	case LogLevel::WARNING:
+	case LogLevel::WARN:
 		return "Warning";
-	case LogLevel::ERROR:
+	case LogLevel::ERR:
 		return "Error";
 	default:
 		assert(false);
@@ -55,9 +55,9 @@ std::FILE *StdlibLogger::get_log_level_stream(const LogLevel level) const
 	switch (level) {
 	case LogLevel::INFO:
 		return info_stream_;
-	case LogLevel::WARNING:
+	case LogLevel::WARN:
 		return warning_stream_;
-	case LogLevel::ERROR:
+	case LogLevel::ERR:
 		return error_stream_;
 	default:
 		assert(false);

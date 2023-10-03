@@ -50,7 +50,7 @@ bool X11GlContext::init()
 			glXGetProcAddressARB(reinterpret_cast<const GLubyte *>("glXCreateContextAttribsARB"))
 		);
 	if (glx_create_context_attribs_arb == nullptr) {
-		logger_.log(LogLevel::ERROR, "glXCreateContextAttribsARB not found.");
+		logger_.log(LogLevel::ERR, "glXCreateContextAttribsARB not found.");
 		return false;
 	}
 
@@ -60,7 +60,7 @@ bool X11GlContext::init()
 	const int screen = connection.get_default_screen();
 	const char *const extensions = glXQueryExtensionsString(display, screen);
 	if (!x11_gl_has_extension(extensions, "GLX_ARB_create_context")) {
-		logger_.log(LogLevel::ERROR, "GLX_ARB_create_context not found.");
+		logger_.log(LogLevel::ERR, "GLX_ARB_create_context not found.");
 		return false;
 	}
 
@@ -75,7 +75,7 @@ bool X11GlContext::init()
 		if (context != nullptr) {
 			glXDestroyContext(display, context);
 		}
-		logger_.log(LogLevel::ERROR, "Creating X OpenGL context failed.");
+		logger_.log(LogLevel::ERR, "Creating X OpenGL context failed.");
 		return false;
 	}
 

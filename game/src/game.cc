@@ -10,8 +10,8 @@ static const float FOV = 60.0f * DEG_TO_RAD;
 static const float WIDTH = 640.0f;
 static const float HEIGHT = 480.0f;
 static const float ASPECT_RATIO = WIDTH / HEIGHT;
-static const float NEAR = 0.0f;
-static const float FAR = -1000.0f;
+static const float NEAR_PLANE = 0.0f;
+static const float FAR_PLANE = -1000.0f;
 
 static const Vector3 CAMERA_POSITION = Vector3(0.0f, 2.0f, 5.0f);
 
@@ -25,13 +25,13 @@ Game::Game(Platform &platform)
 	, sprite_batch_(platform.sprite_batch_factory)
 	, sprite_batch_shader_pipeline_(platform.shader_pipeline_factory)
 	, sprite_batch_projection_uniform_(-1)
-	, sprite_batch_projection_(Matrix4::ortho(0.0f, WIDTH, 0.0f, HEIGHT, NEAR, FAR))
+	, sprite_batch_projection_(Matrix4::ortho(0.0f, WIDTH, 0.0f, HEIGHT, NEAR_PLANE, FAR_PLANE))
 	, mesh_(platform.mesh_factory)
 	, mesh_shader_pipeline_(platform.shader_pipeline_factory)
 	, mesh_projection_uniform_(-1)
 	, mesh_translation_uniform_(-1)
 	, mesh_texture_(platform.texture_factory)
-	, mesh_projection_(Matrix4::perspective(FOV, ASPECT_RATIO, NEAR, FAR))
+	, mesh_projection_(Matrix4::perspective(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE))
 	, mesh_position_(0.0f, 0.0f, 0.0f)
 	, velocity_(0.0f, 0.0f, 0.0f)
 	, left_(false)

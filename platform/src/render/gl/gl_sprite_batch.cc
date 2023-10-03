@@ -102,7 +102,7 @@ bool GlSpriteBatch::begin_push()
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_.buffer);
 	void *const buffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 	if (buffer == nullptr) {
-		logger_.log(LogLevel::ERROR, "Mapping buffer failed.");
+		logger_.log(LogLevel::ERR, "Mapping buffer failed.");
 		return false;
 	}
 

@@ -12,7 +12,7 @@ static char *get_shader_info_log(const GLuint shader, ILogger &logger, IAllocato
 	GLint length = 0;
 	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 	if (length <= 0) {
-		logger.log(LogLevel::ERROR, "Getting shader info log length failed.");
+		logger.log(LogLevel::ERR, "Getting shader info log length failed.");
 		return nullptr;
 	}
 
@@ -35,9 +35,9 @@ static bool compile_shader(const GLuint shader, ILogger &logger, IAllocator &all
 	glCompileShader(shader);
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE) {
-		logger.log(LogLevel::ERROR, "Compiling OpenGL shader (%lu) failed.", shader);
+		logger.log(LogLevel::ERR, "Compiling OpenGL shader (%lu) failed.", shader);
 		if (char *const info_log = get_shader_info_log(shader, logger, allocator); info_log != nullptr) {
-			logger.log(LogLevel::ERROR, info_log);
+			logger.log(LogLevel::ERR, info_log);
 			allocator.free(info_log);
 		}
 		return false;
@@ -67,7 +67,7 @@ bool GlShader::init_from_source(const GLenum type, const char *source, IAllocato
 
 	const GLuint shader = glCreateShader(type);
 	if (shader == 0) {
-		logger.log(LogLevel::ERROR, "Creating OpenGL shader failed.");
+		logger.log(LogLevel::ERR, "Creating OpenGL shader failed.");
 		return false;
 	}
 

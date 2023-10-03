@@ -20,7 +20,7 @@
 #define SHARED_LIBRARY_FILENAME "libhotloadgame.so"
 #define SHARED_LIBRARY_PATH (BIN_DIR "/" SHARED_LIBRARY_FILENAME)
 
-static const long long SHARED_LIBRARY_CHECK_INTERVAL = NSEC_PER_SEC;
+static const long long SHARED_LIBRARY_CHECK_INTERVAL_NSEC = NSEC_PER_SEC;
 
 static bool load_game_api(PosixSharedLibrary &shared_library, GameApi &game_api, ILogger &logger)
 {
@@ -34,7 +34,7 @@ static bool load_game_api(PosixSharedLibrary &shared_library, GameApi &game_api,
 		return false;
 	}
 	if (populate_game_api == nullptr) {
-		logger.log(LogLevel::ERROR, "populate_game_api symbol was null.");
+		logger.log(LogLevel::ERR, "populate_game_api symbol was null.");
 		return false;
 	}
 
@@ -50,7 +50,7 @@ static bool load_game_api(PosixSharedLibrary &shared_library, GameApi &game_api,
 		|| (game_api.handle_event == nullptr)
 		|| (game_api.tick == nullptr)
 	) {
-		logger.log(LogLevel::ERROR, "Invalid game API specification.");
+		logger.log(LogLevel::ERR, "Invalid game API specification.");
 		return false;
 	}
 
@@ -138,7 +138,7 @@ int main()
 	window.make_context_current(&gl_context);
 
 	if (!x11_gl_init_extensions()) {
-		logger.log(LogLevel::ERROR, "Initializing OpenGL extensions failed.");
+		logger.log(LogLevel::ERR, "Initializing OpenGL extensions failed.");
 		return -1;
 	}
 
@@ -160,7 +160,7 @@ int main()
 	void *const game_memory = game_memory_allocation.get_memory();
 
 	if (!game_api.init(game_memory, &platform)) {
-		logger.log(LogLevel::ERROR, "Game initialization failed.");
+		logger.log(LogLevel::ERR, "Game initialization failed.");
 		return -1;
 	}
 
@@ -173,6 +173,10 @@ int main()
 	}
 
 	long long previous_time_nsec = posix_time_nsec();
+	if (previous_time_nsec == -1LL) {
+		logger.log(LogLevel::ERR, "Getting initial time failed.");
+		return -1;
+	}
 	long long previous_shared_library_check_time_nsec = previous_time_nsec;
 
 	glEnable(GL_DEPTH_TEST);
@@ -181,11 +185,11 @@ int main()
 
 	while (handle_events(x11_connection, game_api, game_memory)) {
 		const long long time_nsec = posix_time_nsec();
-		if (time_nsec <= 0LL) {
+		if (time_nsec == -1LL) {
 			continue;
 		}
 
-		if ((time_nsec - previous_shared_library_check_time_nsec) >= SHARED_LIBRARY_CHECK_INTERVAL) {
+		if ((time_nsec - previous_shared_library_check_time_nsec) >= SHARED_LIBRARY_CHECK_INTERVAL_NSEC) {
 			std::time_t shared_library_modification_time;
 			if (
 				file_system.try_get_file_last_modification_time(

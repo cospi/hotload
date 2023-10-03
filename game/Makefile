@@ -190,6 +190,7 @@ clean :
 	$(RM) -r $(OUT) $(INT_DIR)
 
 $(OUT) : $(OBJ)
+	$(shell [ ! -f $(OUT) ] || mv $(OUT) $(OUT).old)
 	$(shell mkdir -p $(dir $@))
 	$(CXX) -shared $^ -o $@ $(LDFLAGS)
 

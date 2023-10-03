@@ -3,8 +3,8 @@
 
 enum class LogLevel {
 	INFO,
-	WARNING,
-	ERROR
+	WARN,
+	ERR
 };
 
 class ILogger {
