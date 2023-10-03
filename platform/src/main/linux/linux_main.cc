@@ -17,6 +17,46 @@
 #include "../../window_system/x11/x11_gl_extensions.hh"
 #include "../../window_system/x11/x11_keys.hh"
 
+#define SHARED_LIBRARY_FILENAME "libhotloadgame.so"
+#define SHARED_LIBRARY_PATH (BIN_DIR "/" SHARED_LIBRARY_FILENAME)
+
+static const long long SHARED_LIBRARY_CHECK_INTERVAL = NSEC_PER_SEC;
+
+static bool load_game_api(PosixSharedLibrary &shared_library, GameApi &game_api, ILogger &logger)
+{
+	shared_library.fini();
+	if (!shared_library.init(SHARED_LIBRARY_FILENAME, RTLD_NOW)) {
+		return false;
+	}
+
+	void (*populate_game_api)(void *);
+	if (!shared_library.try_get_symbol("populate_game_api", reinterpret_cast<void **>(&populate_game_api))) {
+		return false;
+	}
+	if (populate_game_api == nullptr) {
+		logger.log(LogLevel::ERROR, "populate_game_api symbol was null.");
+		return false;
+	}
+
+	populate_game_api(&game_api);
+	if (
+		(game_api.game_memory_size == 0)
+		|| (game_api.render_command_capacity == 0)
+		|| (game_api.window_width == 0)
+		|| (game_api.window_height == 0)
+		|| (game_api.window_title == nullptr)
+		|| (game_api.init == nullptr)
+		|| (game_api.fini == nullptr)
+		|| (game_api.handle_event == nullptr)
+		|| (game_api.tick == nullptr)
+	) {
+		logger.log(LogLevel::ERROR, "Invalid game API specification.");
+		return false;
+	}
+
+	return true;
+}
+
 static void handle_key_press(const GameApi &game_api, void *const game_memory, XKeyEvent &key_event)
 {
 	Event event;
@@ -64,33 +104,8 @@ int main()
 	StdlibLogger logger(stdout /* Info */, stderr /* Warning */, stderr /* Error */);
 
 	PosixSharedLibrary shared_library(logger);
-	if (!shared_library.init("libhotloadgame.so", RTLD_NOW)) {
-		return -1;
-	}
-
-	void (*populate_game_api)(void *);
-	if (!shared_library.try_get_symbol("populate_game_api", reinterpret_cast<void **>(&populate_game_api))) {
-		return -1;
-	}
-	if (populate_game_api == nullptr) {
-		logger.log(LogLevel::ERROR, "populate_game_api symbol was null.");
-		return -1;
-	}
-
 	GameApi game_api;
-	populate_game_api(&game_api);
-	if (
-		(game_api.game_memory_size == 0)
-		|| (game_api.render_command_capacity == 0)
-		|| (game_api.window_width == 0)
-		|| (game_api.window_height == 0)
-		|| (game_api.window_title == nullptr)
-		|| (game_api.init == nullptr)
-		|| (game_api.fini == nullptr)
-		|| (game_api.handle_event == nullptr)
-		|| (game_api.tick == nullptr)
-	) {
-		logger.log(LogLevel::ERROR, "Invalid game API specification.");
+	if (!load_game_api(shared_library, game_api, logger)) {
 		return -1;
 	}
 
@@ -149,22 +164,51 @@ int main()
 		return -1;
 	}
 
+	std::time_t previous_shared_library_modification_time;
+	if (!file_system.try_get_file_last_modification_time(
+		SHARED_LIBRARY_PATH,
+		&previous_shared_library_modification_time
+	)) {
+		return -1;
+	}
+
+	long long previous_time_nsec = posix_time_nsec();
+	long long previous_shared_library_check_time_nsec = previous_time_nsec;
+
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	long long previous_time_nsec = posix_time_nsec();
-
 	while (handle_events(x11_connection, game_api, game_memory)) {
+		const long long time_nsec = posix_time_nsec();
+		if (time_nsec <= 0LL) {
+			continue;
+		}
+
+		if ((time_nsec - previous_shared_library_check_time_nsec) >= SHARED_LIBRARY_CHECK_INTERVAL) {
+			std::time_t shared_library_modification_time;
+			if (
+				file_system.try_get_file_last_modification_time(
+					SHARED_LIBRARY_PATH,
+					&shared_library_modification_time
+				)
+				&& (shared_library_modification_time > previous_shared_library_modification_time)
+			) {
+				if (!load_game_api(shared_library, game_api, logger)) {
+					break;
+				}
+				previous_shared_library_modification_time = shared_library_modification_time;
+			}
+			previous_shared_library_check_time_nsec = time_nsec;
+		}
+
 		render_command_buffer.reset();
 
-		if (const long long time_nsec = posix_time_nsec(); time_nsec > 0LL) {
-			const float delta_time =  static_cast<float>(
-				static_cast<long double>(time_nsec - previous_time_nsec) / NSEC_PER_SEC
-			);
-			game_api.tick(game_memory, delta_time);
-			previous_time_nsec = time_nsec;
-		}
+		const float delta_time =  static_cast<float>(
+			static_cast<long double>(time_nsec - previous_time_nsec) / NSEC_PER_SEC
+		);
+		game_api.tick(game_memory, delta_time);
+		previous_time_nsec = time_nsec;
 
 		gl_render(render_command_buffer);
 		window.swap_buffers();

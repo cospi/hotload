@@ -10,14 +10,7 @@ PosixSharedLibrary::PosixSharedLibrary(ILogger &logger)
 
 PosixSharedLibrary::~PosixSharedLibrary()
 {
-	if (void *const handle = handle_; handle != nullptr) {
-		dlclose(handle);
-		logger_.log(
-			LogLevel::INFO,
-			"Closed POSIX shared library (%" PRIxPTR ").",
-			reinterpret_cast<std::uintptr_t>(handle)
-		);
-	}
+	fini();
 }
 
 bool PosixSharedLibrary::init(const char *const filename, const int flag)
@@ -37,6 +30,19 @@ bool PosixSharedLibrary::init(const char *const filename, const int flag)
 		reinterpret_cast<std::uintptr_t>(handle)
 	);
 	return true;
+}
+
+void PosixSharedLibrary::fini()
+{
+	if (void *const handle = handle_; handle != nullptr) {
+		dlclose(handle);
+		handle_ = nullptr;
+		logger_.log(
+			LogLevel::INFO,
+			"Closed POSIX shared library (%" PRIxPTR ").",
+			reinterpret_cast<std::uintptr_t>(handle)
+		);
+	}
 }
 
 bool PosixSharedLibrary::try_get_symbol(const char *const symbol_name, void **const out_symbol) const

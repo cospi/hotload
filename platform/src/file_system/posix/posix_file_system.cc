@@ -36,21 +36,15 @@ bool PosixFileSystem::try_get_file_size(void *const file, std::size_t *const out
 }
 
 bool PosixFileSystem::try_get_file_last_modification_time(
-	void *const file,
+	const char *const path,
 	std::time_t *const out_last_modification_time
 )
 {
-	assert(file != nullptr);
+	assert(path != nullptr);
 	assert(out_last_modification_time != nullptr);
 
-	const int fd = fileno(static_cast<std::FILE *>(file));
-	if (fd == -1) {
-		logger_.log(LogLevel::ERROR, "Getting file descriptor failed.");
-		return false;
-	}
-
 	struct stat status;
-	if (fstat(fd, &status) == -1) {
+	if (stat(path, &status) == -1) {
 		logger_.log(LogLevel::ERROR, "Getting file status failed.");
 		return false;
 	}

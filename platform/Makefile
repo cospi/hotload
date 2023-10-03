@@ -178,7 +178,7 @@ else
 	CXXFLAGS += -DNDEBUG -O3
 endif
 
-CXXFLAGS += -I../common/include/
+CXXFLAGS += -DBIN_DIR="\"$(OUT_DIR_LAZY)\"" -I../common/include/
 
 LDFLAGS += -L$(BIN_DIR) -ldl -lX11 -lGL -lhotloadcommon
 

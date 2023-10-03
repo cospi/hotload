@@ -14,6 +14,7 @@ public:
 	PosixSharedLibrary &operator=(const PosixSharedLibrary &) = delete;
 
 	bool init(const char *filename, int flag);
+	void fini();
 
 	bool try_get_symbol(const char *symbol_name, void **out_symbol) const;
 
