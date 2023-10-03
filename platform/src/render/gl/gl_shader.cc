@@ -58,7 +58,7 @@ GlShader::~GlShader()
 	}
 }
 
-bool GlShader::init_from_source(const GLenum type, const char *const source, IAllocator &allocator)
+bool GlShader::init_from_source(const GLenum type, const char *source, IAllocator &allocator)
 {
 	assert(shader_ == 0);
 	assert(source != nullptr);

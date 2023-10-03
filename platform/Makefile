@@ -13,7 +13,17 @@ SRC_EXT := .cc
 OBJ_EXT := .o
 DEP_EXT := .d
 
-SRC := $(shell find $(SRC_DIR) -name *$(SRC_EXT))
+ifeq ($(OS), Windows_NT)
+	SRC := \
+		$(shell find $(SRC_DIR) -name *$(SRC_EXT) \
+		! -path "$(SRC_DIR)main/linux/*" \
+		! -path "$(SRC_DIR)file_system/posix/*" \
+		! -path "$(SRC_DIR)shared_library/posix/*" \
+		! -path "$(SRC_DIR)time/posix/*" \
+		! -path "$(SRC_DIR)window_system/x11/*")
+else
+	SRC := $(shell find $(SRC_DIR) -name *$(SRC_EXT) ! -path "$(SRC_DIR)main/windows/")
+endif
 OBJ := $(SRC:$(SRC_DIR)%$(SRC_EXT)=$(OBJ_DIR)%$(OBJ_EXT))
 DEP := $(SRC:$(SRC_DIR)%$(SRC_EXT)=$(DEP_DIR)%$(DEP_EXT))
 OUT := $(BIN_DIR)hotload
@@ -180,7 +190,12 @@ endif
 
 CXXFLAGS += -DBIN_DIR="\"$(OUT_DIR_LAZY)\"" -I../common/include/
 
-LDFLAGS += -L$(BIN_DIR) -ldl -lX11 -lGL -lhotloadcommon
+LDFLAGS += -L$(BIN_DIR) -lhotloadcommon
+ifeq ($(OS), Windows_NT)
+	LDFLAGS += -lgdi32 -lopengl32
+else
+	LDFLAGS += -ldl -lX11 -lGL
+endif
 
 TARGET_OBJ_TO_DEP = $(@:$(OBJ_DIR)%$(OBJ_EXT)=$(DEP_DIR)%$(DEP_EXT))
 
