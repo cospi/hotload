@@ -22,8 +22,12 @@ ifeq ($(OS), Windows_NT)
 		! -path "$(SRC_DIR)time/posix/*" \
 		! -path "$(SRC_DIR)window_system/x11/*")
 else
-	SRC := $(shell find $(SRC_DIR) -name *$(SRC_EXT) ! -path "$(SRC_DIR)main/windows/")
+	SRC := \
+		$(shell find $(SRC_DIR) -name *$(SRC_EXT) \
+		! -path "$(SRC_DIR)main/windows/" \
+		! -path "$(SRC_DIR)shared_library/win32/")
 endif
+
 OBJ := $(SRC:$(SRC_DIR)%$(SRC_EXT)=$(OBJ_DIR)%$(OBJ_EXT))
 DEP := $(SRC:$(SRC_DIR)%$(SRC_EXT)=$(DEP_DIR)%$(DEP_EXT))
 OUT := $(BIN_DIR)hotload
