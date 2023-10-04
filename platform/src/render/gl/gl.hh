@@ -1,9 +1,9 @@
 #ifndef HOTLOAD_PLATFORM_RENDER_GL_GL_HH_
 #define HOTLOAD_PLATFORM_RENDER_GL_GL_HH_
 
-#include <cstddef>
-
 #include <GL/gl.h>
+
+#include <cstddef>
 
 typedef std::ptrdiff_t GLsizeiptr;
 typedef char GLchar;

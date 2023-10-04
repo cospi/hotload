@@ -17,6 +17,7 @@
 #include "../../shared_library/win32/win32_shared_library.hh"
 #include "../../time/win32/win32_time.hh"
 #include "../../window_system/win32/win32_gl_extensions.hh"
+#include "../../window_system/win32/win32_gl_window.hh"
 #include "../../window_system/win32/win32_keys.hh"
 
 #define SHARED_LIBRARY_FILENAME "libhotloadgame.so"
@@ -133,60 +134,23 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous_instance, LPSTR cmd_li
 		return -1;
 	}
 
-	wchar_t window_class_name[] = L"ShaderTestbedWindowClass";
-
-	WNDCLASSEXW window_class;
-	window_class.cbSize = sizeof(WNDCLASSEXW);
-	window_class.style = CS_VREDRAW | CS_HREDRAW | CS_OWNDC;
-	window_class.lpfnWndProc = window_proc;
-	window_class.cbClsExtra = 0;
-	window_class.cbWndExtra = 0;
-	window_class.hInstance = instance;
-	window_class.hIcon = nullptr;
-	window_class.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	window_class.hbrBackground = nullptr;
-	window_class.lpszMenuName = nullptr;
-	window_class.lpszClassName = window_class_name;
-	window_class.hIconSm = nullptr;
-
-	if (RegisterClassExW(&window_class) == 0) {
-		logger.log(LogLevel::ERR, "Registering window class failed.");
-		return -1;
-	}
-
-	RECT rect;
-	rect.left = 0;
-	rect.top = 0;
-	rect.right = static_cast<int>(s_game_api.window_width);
-	rect.bottom = static_cast<int>(s_game_api.window_height);
-	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
-
-	HWND window = CreateWindowExW(
-		0,
-		window_class_name,
+	const wchar_t window_class_name[] = L"HotloadWindowClass";
+	Win32GlWindow window(logger);
+	if (!window.init(
+		s_game_api.window_width,
+		s_game_api.window_height,
 		L"Hotload",
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		rect.right - rect.left,
-		rect.bottom - rect.top,
-		nullptr,
-		nullptr,
+		CS_VREDRAW | CS_HREDRAW | CS_OWNDC,
+		window_proc,
 		instance,
-		nullptr
-	);
-	if (window == nullptr) {
-		logger.log(LogLevel::ERR, "Creating window failed.");
+		LoadCursor(nullptr, IDC_ARROW),
+		window_class_name
+	)) {
 		return -1;
 	}
 
-	HDC device_context = GetDC(window);
-	if (device_context == nullptr) {
-		logger.log(LogLevel::ERR, "Getting device context failed.");
-		return -1;
-	}
-
-	HGLRC rendering_context = win32_gl_create_context(device_context);
+	const HDC device_context = window.get_device_context();
+	const HGLRC rendering_context = win32_gl_create_context(device_context);
 	if (rendering_context == nullptr) {
 		logger.log(LogLevel::ERR, "Creating OpenGL rendering context failed.");
 		return -1;
@@ -202,7 +166,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous_instance, LPSTR cmd_li
 		return -1;
 	}
 
-	ShowWindow(window, SW_SHOW);
+	window.show();
 
 	Win32FileSystem file_system(logger);
 	GlShaderPipelineFactory shader_pipeline_factory(logger, allocator, file_system);
