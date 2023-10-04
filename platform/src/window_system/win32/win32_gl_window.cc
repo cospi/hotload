@@ -38,9 +38,7 @@ bool Win32GlWindow::init(
 	const wchar_t *const class_name
 )
 {
-	assert(width > 0);
 	assert(width <= std::numeric_limits<int>::max());
-	assert(height > 0);
 	assert(height <= std::numeric_limits<int>::max());
 	assert(title != nullptr);
 	assert(instance != nullptr);

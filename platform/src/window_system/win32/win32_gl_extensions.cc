@@ -2,27 +2,36 @@
 
 #include <cassert>
 
+#include "win32_gl_context.hh"
+#include "win32_gl_window.hh"
 #include "../../render/gl/gl.hh"
 
 PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = nullptr;
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
 
-bool win32_gl_init_context_creation_extensions(HINSTANCE instance)
+static const wchar_t DUMMY_WINDOW_TITLE[] = L"HotloadDummy";
+static const wchar_t DUMMY_WINDOW_CLASS_NAME[] = L"HotloadDummyWindowClass";
+static const int DUMMY_CONTEXT_PIXEL_FORMAT_ATTRIBS[] = {
+	WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+	WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
+	WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+	WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+	WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+	WGL_COLOR_BITS_ARB, 32,
+	WGL_DEPTH_BITS_ARB, 24,
+	WGL_ALPHA_BITS_ARB, 8,
+	0
+};
+static const int DUMMY_CONTEXT_ATTRIBS[] = {
+	WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+	WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+	WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+	0
+};
+
+static HGLRC create_dummy_context(const HDC device_context)
 {
-	wchar_t window_class_name[] = L"ShaderTestbedWGLExtensionsWindowClass";
-	WNDCLASSEXW window_class;
-	window_class.cbSize = sizeof(WNDCLASSEXW);
-	window_class.style = CS_OWNDC;
-	window_class.lpfnWndProc = DefWindowProcW;
-	window_class.cbClsExtra = 0;
-	window_class.cbWndExtra = 0;
-	window_class.hInstance = instance;
-	window_class.hIcon = nullptr;
-	window_class.hCursor = nullptr;
-	window_class.hbrBackground = nullptr;
-	window_class.lpszMenuName = nullptr;
-	window_class.lpszClassName = window_class_name;
-	window_class.hIconSm = nullptr;
+	assert(device_context != nullptr);
 
 	PIXELFORMATDESCRIPTOR pixel_format;
 	pixel_format.nSize = sizeof(PIXELFORMATDESCRIPTOR);
@@ -52,44 +61,9 @@ bool win32_gl_init_context_creation_extensions(HINSTANCE instance)
 	pixel_format.dwVisibleMask = 0;
 	pixel_format.dwDamageMask = 0;
 
-	bool success = false;
-	HWND window;
-	HDC device_context;
-	int suggested_pixel_format_index;
-	HGLRC rendering_context;
-	PFNWGLCREATECONTEXTATTRIBSARBPROC wgl_create_context_attribs_arb;
-	PFNWGLCHOOSEPIXELFORMATARBPROC wgl_choose_pixel_format_arb;
-
-	if (RegisterClassExW(&window_class) == 0) {
-		return false;
-	}
-
-	window = CreateWindowExW(
-		0,
-		window_class_name,
-		L"Shader Testbed",
-		0,
-		0,
-		0,
-		0,
-		0,
-		nullptr,
-		nullptr,
-		instance,
-		nullptr
-	);
-	if (window == nullptr) {
-		goto out_unregister_window_class;
-	}
-
-	device_context = GetDC(window);
-	if (device_context == nullptr) {
-		goto out_destroy_window;
-	}
-
-	suggested_pixel_format_index = ChoosePixelFormat(device_context, &pixel_format);
+	const int suggested_pixel_format_index = ChoosePixelFormat(device_context, &pixel_format);
 	if (suggested_pixel_format_index == 0) {
-		goto out_release_device_context;
+		return nullptr;
 	}
 
 	if (DescribePixelFormat(
@@ -98,47 +72,68 @@ bool win32_gl_init_context_creation_extensions(HINSTANCE instance)
 		sizeof(PIXELFORMATDESCRIPTOR),
 		&pixel_format
 	) == 0) {
-		goto out_release_device_context;
+		return nullptr;
 	}
 
 	if (SetPixelFormat(device_context, suggested_pixel_format_index, &pixel_format) == FALSE) {
-		goto out_release_device_context;
+		return nullptr;
 	}
 
-	rendering_context = wglCreateContext(device_context);
-	if (rendering_context == nullptr) {
-		goto out_release_device_context;
+	return wglCreateContext(device_context);
+}
+
+bool win32_gl_init_context_creation_extensions(HINSTANCE instance, ILogger &logger)
+{
+	Win32GlWindow dummy_window(logger);
+	if (!dummy_window.init(
+		0,
+		0,
+		DUMMY_WINDOW_TITLE,
+		CS_OWNDC,
+		DefWindowProcW,
+		instance,
+		nullptr,
+		DUMMY_WINDOW_CLASS_NAME
+	)) {
+		return false;
 	}
 
-	if (wglMakeCurrent(device_context, rendering_context) == FALSE) {
-		goto out_delete_rendering_context;
+
+	const HDC device_context = dummy_window.get_device_context();
+	const HGLRC dummy_context = create_dummy_context(device_context);
+	if (dummy_context == nullptr) {
+		logger.log(LogLevel::ERR, "Creating Win32 OpenGL dummy context failed.");
+		return false;
 	}
 
+	if (wglMakeCurrent(device_context, dummy_context) == FALSE) {
+		logger.log(LogLevel::ERR, "Making context current failed.");
+		wglDeleteContext(dummy_context);
+		return false;
+	}
+
+	PFNWGLCHOOSEPIXELFORMATARBPROC wgl_choose_pixel_format_arb;
 	*reinterpret_cast<PROC *>(&wgl_choose_pixel_format_arb) = wglGetProcAddress("wglChoosePixelFormatARB");
 	if (wgl_choose_pixel_format_arb == nullptr) {
-		goto out_reset_current_rendering_context;
+		logger.log(LogLevel::ERR, "wglChoosePixelFormatARB not found.");
+		wglDeleteContext(dummy_context);
+		return false;
 	}
 
+	PFNWGLCREATECONTEXTATTRIBSARBPROC wgl_create_context_attribs_arb;
 	*reinterpret_cast<PROC *>(&wgl_create_context_attribs_arb) = wglGetProcAddress("wglCreateContextAttribsARB");
 	if (wgl_create_context_attribs_arb == nullptr) {
-		goto out_reset_current_rendering_context;
+		logger.log(LogLevel::ERR, "wglCreateContextAttribsARB not found.");
+		wglDeleteContext(dummy_context);
+		return false;
 	}
 
 	wglChoosePixelFormatARB = wgl_choose_pixel_format_arb;
 	wglCreateContextAttribsARB = wgl_create_context_attribs_arb;
-	success = true;
 
-out_reset_current_rendering_context:
 	wglMakeCurrent(nullptr, nullptr);
-out_delete_rendering_context:
-	wglDeleteContext(rendering_context);
-out_release_device_context:
-	ReleaseDC(window, device_context);
-out_destroy_window:
-	DestroyWindow(window);
-out_unregister_window_class:
-	UnregisterClassW(window_class_name, instance);
-	return success;
+
+	return true;
 }
 
 bool win32_gl_init_extensions(void)

@@ -24,6 +24,9 @@
 #define SHARED_LIBRARY_FILENAME "libhotloadgame.so"
 #define SHARED_LIBRARY_PATH (BIN_DIR "/" SHARED_LIBRARY_FILENAME)
 
+static const wchar_t WINDOW_TITLE[] = L"Hotload";
+static const wchar_t WINDOW_CLASS_NAME[] = L"HotloadWindowClass";
+
 static const long double SHARED_LIBRARY_CHECK_INTERVAL_SEC = 1.0L;
 
 static bool s_running = true;
@@ -130,22 +133,21 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous_instance, LPSTR cmd_li
 		return -1;
 	}
 
-	if (!win32_gl_init_context_creation_extensions(instance)) {
+	if (!win32_gl_init_context_creation_extensions(instance, logger)) {
 		logger.log(LogLevel::ERR, "Initializing OpenGL context creation extensions failed.");
 		return -1;
 	}
 
-	const wchar_t window_class_name[] = L"HotloadWindowClass";
 	Win32GlWindow window(logger);
 	if (!window.init(
 		s_game_api.window_width,
 		s_game_api.window_height,
-		L"Hotload",
+		WINDOW_TITLE,
 		CS_VREDRAW | CS_HREDRAW | CS_OWNDC,
 		window_proc,
 		instance,
 		LoadCursor(nullptr, IDC_ARROW),
-		window_class_name
+		WINDOW_CLASS_NAME
 	)) {
 		return -1;
 	}
@@ -256,6 +258,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous_instance, LPSTR cmd_li
 	}
 
 	s_game_api.fini(s_game_memory);
+
+	wglMakeCurrent(nullptr, nullptr);
 
 	return 0;
 }
