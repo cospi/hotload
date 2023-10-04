@@ -4,26 +4,8 @@
 
 #include "../../render/gl/gl.hh"
 
-#define WGL_DRAW_TO_WINDOW_ARB 0x2001
-#define WGL_ACCELERATION_ARB 0x2003
-#define WGL_SUPPORT_OPENGL_ARB 0x2010
-#define WGL_DOUBLE_BUFFER_ARB 0x2011
-#define WGL_PIXEL_TYPE_ARB 0x2013
-#define WGL_COLOR_BITS_ARB 0x2014
-#define WGL_ALPHA_BITS_ARB 0x201B
-#define WGL_DEPTH_BITS_ARB 0x2022
-#define WGL_FULL_ACCELERATION_ARB 0x2027
-#define WGL_TYPE_RGBA_ARB 0x202B
-#define WGL_CONTEXT_MAJOR_VERSION_ARB 0x2091
-#define WGL_CONTEXT_MINOR_VERSION_ARB 0x2092
-#define WGL_CONTEXT_PROFILE_MASK_ARB 0x9126
-#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB 0x00000001
-
-typedef BOOL (WINAPI * PFNWGLCHOOSEPIXELFORMATARBPROC)(HDC, const int *, const float *, UINT, int *, UINT *);
-typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC)(HDC, HGLRC, const int *);
-
-static PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = nullptr;
-static PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
+PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = nullptr;
+PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
 
 bool win32_gl_init_context_creation_extensions(HINSTANCE instance)
 {
@@ -157,82 +139,6 @@ out_destroy_window:
 out_unregister_window_class:
 	UnregisterClassW(window_class_name, instance);
 	return success;
-}
-
-HGLRC win32_gl_create_context(HDC device_context)
-{
-	int pixel_format_attribs[] = {
-		WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-		WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
-		WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-		WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
-		WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
-		WGL_COLOR_BITS_ARB, 32,
-		WGL_DEPTH_BITS_ARB, 24,
-		WGL_ALPHA_BITS_ARB, 8,
-		0
-	};
-	int suggested_pixel_format_index;
-	UINT pixel_format_count;
-	if (wglChoosePixelFormatARB(
-		device_context,
-		pixel_format_attribs,
-		nullptr,
-		1,
-		&suggested_pixel_format_index,
-		&pixel_format_count
-	) == FALSE) {
-		return nullptr;
-	}
-
-	PIXELFORMATDESCRIPTOR pixel_format;
-	pixel_format.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-	pixel_format.nVersion = 1;
-	pixel_format.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	pixel_format.iPixelType = PFD_TYPE_RGBA;
-	pixel_format.cColorBits = 32;
-	pixel_format.cRedBits = 0;
-	pixel_format.cRedShift = 0;
-	pixel_format.cGreenBits = 0;
-	pixel_format.cGreenShift = 0;
-	pixel_format.cBlueBits = 0;
-	pixel_format.cBlueShift = 0;
-	pixel_format.cAlphaBits = 8;
-	pixel_format.cAlphaShift = 0;
-	pixel_format.cAccumBits = 0;
-	pixel_format.cAccumRedBits = 0;
-	pixel_format.cAccumGreenBits = 0;
-	pixel_format.cAccumBlueBits = 0;
-	pixel_format.cAccumAlphaBits = 0;
-	pixel_format.cDepthBits = 24;
-	pixel_format.cStencilBits = 0;
-	pixel_format.cAuxBuffers = 0;
-	pixel_format.iLayerType = 0;
-	pixel_format.bReserved = 0;
-	pixel_format.dwLayerMask = 0;
-	pixel_format.dwVisibleMask = 0;
-	pixel_format.dwDamageMask = 0;
-
-	if (DescribePixelFormat(
-		device_context,
-		suggested_pixel_format_index,
-		sizeof(PIXELFORMATDESCRIPTOR),
-		&pixel_format
-	) == 0) {
-		return nullptr;
-	}
-
-	if (SetPixelFormat(device_context, suggested_pixel_format_index, &pixel_format) == FALSE) {
-		return nullptr;
-	}
-
-	int context_attribs[] = {
-		WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-		WGL_CONTEXT_MINOR_VERSION_ARB, 0,
-		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-		0
-	};
-	return wglCreateContextAttribsARB(device_context, nullptr, context_attribs);
 }
 
 bool win32_gl_init_extensions(void)

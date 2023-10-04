@@ -3,8 +3,13 @@
 
 #include <Windows.h>
 
+typedef BOOL (WINAPI * PFNWGLCHOOSEPIXELFORMATARBPROC)(HDC, const int *, const float *, UINT, int *, UINT *);
+typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC)(HDC, HGLRC, const int *);
+
+extern PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB;
+extern PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
+
 bool win32_gl_init_context_creation_extensions(HINSTANCE instance);
-HGLRC win32_gl_create_context(HDC device_context);
 bool win32_gl_init_extensions(void);
 
 #endif // HOTLOAD_PLATFORM_WINDOW_SYSTEM_WIN32_WIN32_GL_EXTENSIONS_HH_

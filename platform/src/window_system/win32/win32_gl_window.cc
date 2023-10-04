@@ -60,7 +60,7 @@ bool Win32GlWindow::init(
 	window_class.lpszClassName = class_name;
 	window_class.hIconSm = nullptr;
 
-	if (RegisterClassExW(&window_class) == FALSE) {
+	if (RegisterClassExW(&window_class) == 0) {
 		logger_.log(LogLevel::ERR, "Registering window class failed.");
 		return false;
 	}

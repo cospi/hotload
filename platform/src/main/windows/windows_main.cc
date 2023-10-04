@@ -16,6 +16,7 @@
 #include "../../render/gl/gl_texture_factory.hh"
 #include "../../shared_library/win32/win32_shared_library.hh"
 #include "../../time/win32/win32_time.hh"
+#include "../../window_system/win32/win32_gl_context.hh"
 #include "../../window_system/win32/win32_gl_extensions.hh"
 #include "../../window_system/win32/win32_gl_window.hh"
 #include "../../window_system/win32/win32_keys.hh"
@@ -150,13 +151,12 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous_instance, LPSTR cmd_li
 	}
 
 	const HDC device_context = window.get_device_context();
-	const HGLRC rendering_context = win32_gl_create_context(device_context);
-	if (rendering_context == nullptr) {
-		logger.log(LogLevel::ERR, "Creating OpenGL rendering context failed.");
+	Win32GlContext gl_context(logger);
+	if (!gl_context.init(device_context)) {
 		return -1;
 	}
 
-	if (wglMakeCurrent(device_context, rendering_context) == FALSE) {
+	if (wglMakeCurrent(device_context, gl_context.get_context()) == FALSE) {
 		logger.log(LogLevel::ERR, "Making context current failed.");
 		return -1;
 	}
