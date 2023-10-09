@@ -99,7 +99,7 @@ bool Win32GlWindow::init(
 		logger_.log(LogLevel::ERR, "Getting device context failed.");
 		DestroyWindow(window);
 		UnregisterClassW(class_name, instance);
-		return -1;
+		return false;
 	}
 
 	instance_ = instance;
